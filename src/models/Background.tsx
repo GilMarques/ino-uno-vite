@@ -2,7 +2,7 @@ import { animated, useSpring } from "@react-spring/three";
 import { useEffect } from "react";
 import * as THREE from "three";
 
-const Background = ({ bgColor }) => {
+const Background = ({ bgColor }: { bgColor: string }) => {
   const [spring, setSpring] = useSpring(() => ({
     color: "rgb(255, 255, 255)",
     config: { duration: 500 },
@@ -37,7 +37,7 @@ const Background = ({ bgColor }) => {
         });
         break;
     }
-  }, [bgColor]);
+  }, [bgColor, setSpring]);
 
   return (
     <group dispose={null} name={"background"} renderOrder={-1}>

@@ -1,18 +1,28 @@
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 import textureMap from "@/lib/texture";
+import { cardProps } from "@/types/Card";
 import { Physics, useBox, usePlane } from "@react-three/cannon";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 // https://github.com/pmndrs/use-cannon/blob/master/packages/react-three-cannon-examples/src/demos/demo-CubeHeap.tsx
 
-var CARD_WIDTH = 0.4;
-var CARD_HEIGHT = 0.6;
-var CARD_DEPTH = 0.01;
-var CARD_RADIUS = 0.07;
-var CARD_SMOOTHNESS = 10;
+const CARD_WIDTH = 0.4;
+const CARD_HEIGHT = 0.6;
+const CARD_DEPTH = 0.01;
+const CARD_RADIUS = 0.07;
+const CARD_SMOOTHNESS = 10;
 
-const cardTextures = textureMap;
+type FallingCardProps = {
+  face: string;
+  index: number;
+  shake: boolean;
+};
+
+type StackProps = {
+  cardStack: cardProps[];
+  position: [number, number, number];
+};
 
 const Plane = (props) => {
   const [ref] = usePlane(
@@ -29,16 +39,15 @@ const Plane = (props) => {
   );
 };
 
-const FallingCard = ({ face, index, shake }) => {
+const FallingCard = ({ face, index, shake }: FallingCardProps) => {
   const args = [CARD_WIDTH, CARD_HEIGHT, CARD_DEPTH];
-
   const [ref, api] = useBox(
     () => ({
       args,
       mass: 1,
       position: [
         0.1 * (Math.random() - 0.5),
-        index * 5 * CARD_DEPTH,
+        index * 1 * CARD_DEPTH,
         0.1 * (Math.random() - 0.5),
       ],
       rotation: [-Math.PI / 2, 0, 2 * Math.PI * Math.random()],
@@ -51,7 +60,7 @@ const FallingCard = ({ face, index, shake }) => {
   //Wobble cards on remove/add
   useEffect(() => {
     api.wakeUp();
-  }, [shake]);
+  }, [shake, api]);
 
   return (
     <mesh
@@ -68,12 +77,12 @@ const FallingCard = ({ face, index, shake }) => {
     >
       <meshStandardMaterial
         attach="material-0"
-        map={cardTextures[face]}
+        map={textureMap[face]}
         side={THREE.DoubleSide}
       />
       <meshStandardMaterial
         attach="material-1"
-        map={cardTextures["back"]}
+        map={textureMap["back"]}
         side={THREE.DoubleSide}
       />
       <meshStandardMaterial
@@ -85,7 +94,7 @@ const FallingCard = ({ face, index, shake }) => {
   );
 };
 
-const Stack = ({ cardStack, position }) => {
+const Stack = ({ cardStack, position }: StackProps) => {
   const [shake, setShake] = useState(false);
 
   useEffect(() => {

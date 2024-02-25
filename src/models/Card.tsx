@@ -8,16 +8,27 @@ import RoundedBoxFlat from "@/lib/roundedboxflat";
 import { animated, useSpring } from "@react-spring/three";
 import { useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
+import { cardProps } from "../types/Card";
 
 //https://docs.pmnd.rs/react-three-fiber/api/events
 
-var CARD_WIDTH = 0.4;
-var CARD_HEIGHT = 0.6;
-var CARD_DEPTH = 0.001;
-var CARD_RADIUS = 0.07;
-var CARD_SMOOTHNESS = 10;
+const CARD_WIDTH = 0.4;
+const CARD_HEIGHT = 0.6;
+const CARD_DEPTH = 0.001;
+const CARD_RADIUS = 0.07;
+const CARD_SMOOTHNESS = 10;
 
-const cardTextures = textureMap;
+type CardProps = {
+  id: string;
+  name: string;
+  x0: number;
+  y0: number;
+  rotX0: number;
+  rotZ0: number;
+  remove: (id: string) => void;
+  setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
+  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+};
 
 const Card = ({
   x0,
@@ -27,12 +38,13 @@ const Card = ({
   rotZ0,
   name,
   remove,
+
   setIsDragging,
   setCardStack,
-}) => {
+}: CardProps) => {
   //TODO: make hover global
 
-  const ref = useRef();
+  const ref = useRef<THREE.Group>();
   const scaling = 200;
   const [relPos, setRelPos] = useState([x0, y0]);
   const z = 0.01;
@@ -73,7 +85,7 @@ const Card = ({
       console.log("relPos", relPos);
       const eps = 0.5;
       if (Math.abs(relPos[0]) < eps && Math.abs(relPos[1] - 4) < eps) {
-        setCardStack((prev) => {
+        setCardStack((prev: cardProps[]) => {
           return [...prev, { id: id, name: name }];
         });
         remove(id);
@@ -109,8 +121,8 @@ const Card = ({
     <animated.group ref={ref} {...spring2}>
       <animated.group
         name={name}
-        onClick={(e) => {
-          e.stopPropagation();
+        onClick={(event) => {
+          event.stopPropagation();
         }}
         onPointerOver={(e) => {
           e.stopPropagation();
@@ -136,12 +148,12 @@ const Card = ({
         >
           <meshStandardMaterial
             attach="material-0"
-            map={cardTextures[name]}
+            map={textureMap[name]}
             side={THREE.DoubleSide}
           />
           <meshStandardMaterial
             attach="material-1"
-            map={cardTextures["back"]}
+            map={textureMap["back"]}
             side={THREE.DoubleSide}
           />
           <meshStandardMaterial

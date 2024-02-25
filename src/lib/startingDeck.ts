@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
+import { cardProps } from "../types/Card";
 
-const deck = [];
+
+
+const deck: cardProps[] = [];
 const colors = ["red", "green", "blue", "yellow"];
 const values = [
   "0",

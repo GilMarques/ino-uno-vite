@@ -1,16 +1,21 @@
 import calculateCoords from "@/lib/card_fanning";
+import { coordProps, handProps } from "@/types/Hand";
 import { useEffect, useState } from "react";
+import { cardProps } from "../types/Card";
 import Card from "./Card";
 
-const coordsCache = {
+type coordsCacheProps = {
+  [key: number]: coordProps[];
+};
+
+const coordsCache: coordsCacheProps = {
   0: [],
 };
 
-const newCardCoords = (n) => {
+const newCardCoords = (n: number) => {
   if (coordsCache[n]) return coordsCache[n];
   const coords = calculateCoords(n, 800, 200, 300, "N", 0.4);
-  let m = Math.floor(n / 2);
-  console.log("m:", m, "n:", n);
+  const m = Math.floor(n / 2);
   let centerx;
   if (n % 2 == 0) {
     centerx = (coords[m - 1].x + coords[m].x) / 2;
@@ -28,6 +33,15 @@ const newCardCoords = (n) => {
   return coords;
 };
 
+type HandProps = {
+  cards: cardProps[];
+  setCards: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  position: [number, number, number];
+  isDragging: boolean;
+  setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
+  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+};
+
 const Hand = ({
   cards,
   setCards,
@@ -35,14 +49,14 @@ const Hand = ({
   isDragging,
   setIsDragging,
   setCardStack,
-}) => {
-  const [hand, setHand] = useState([]);
+}: HandProps) => {
+  const [hand, setHand] = useState<handProps[]>([]);
 
-  const removeCard = (id) =>
-    setCards((prev) => prev.filter((card) => card.id !== id));
+  const removeCard = (id: string) =>
+    setCards((prev) => prev.filter((card: cardProps) => card.id !== id));
 
   useEffect(() => {
-    const newHand = [];
+    const newHand: handProps[] = [];
     const newCoords = newCardCoords(cards.length);
 
     for (let i = 0; i < cards.length; i++) {
@@ -69,7 +83,6 @@ const Hand = ({
           y0={card.y}
           rotX0={-Math.PI / 4}
           rotZ0={card.rotation}
-          isDragging={isDragging}
           setIsDragging={setIsDragging}
           setCardStack={setCardStack}
           remove={removeCard}

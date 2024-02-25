@@ -3,18 +3,31 @@ import * as THREE from "three";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 
+import { cardProps } from "@/types/Card";
 import { animated, useSpring } from "@react-spring/three";
 import { useGesture } from "@use-gesture/react";
 
-var CARD_WIDTH = 0.4;
-var CARD_HEIGHT = 0.6;
-var CARD_DEPTH = 0.01;
-var CARD_RADIUS = 0.07;
-var CARD_SMOOTHNESS = 10;
+const CARD_WIDTH = 0.4;
+const CARD_HEIGHT = 0.6;
+const CARD_DEPTH = 0.01;
+const CARD_RADIUS = 0.07;
+const CARD_SMOOTHNESS = 10;
 
-const cardTextures = textureMap;
+type DeckProps = {
+  deck: cardProps[];
+  setDeck: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  position: [number, number, number];
+  setCards: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+};
 
-const Deck = ({ deck, setDeck, position, setCards, setCardStack }) => {
+const Deck = ({
+  deck,
+  setDeck,
+  position,
+  setCards,
+  setCardStack,
+}: DeckProps) => {
   const [spring, set] = useSpring(() => ({ scale: [1, 1, 1] }));
   const bind = useGesture({
     onHover: ({ hovering }) =>
@@ -24,10 +37,12 @@ const Deck = ({ deck, setDeck, position, setCards, setCardStack }) => {
   });
 
   const handleClick = () => {
+    if (deck.length === 0) {
+      return;
+    }
     const newCard = deck.pop();
-    console.log("newCard", newCard);
     setDeck(deck);
-    setCards((prev) => [...prev, newCard]);
+    setCards((prev) => [...prev, newCard!]);
   };
 
   return (
@@ -41,7 +56,7 @@ const Deck = ({ deck, setDeck, position, setCards, setCardStack }) => {
         geometry={RoundedBoxFlat(
           CARD_WIDTH,
           CARD_HEIGHT,
-          CARD_DEPTH * 30,
+          CARD_DEPTH * deck.length,
           CARD_RADIUS,
           CARD_SMOOTHNESS
         )}
@@ -53,7 +68,7 @@ const Deck = ({ deck, setDeck, position, setCards, setCardStack }) => {
         />
         <meshPhongMaterial
           attach="material-1"
-          map={cardTextures["back"]}
+          map={textureMap["back"]}
           side={THREE.DoubleSide}
         />
         <meshPhongMaterial

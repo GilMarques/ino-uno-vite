@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import deck from "@/lib/startingDeck";
 import Background from "@/models/Background";
 import Deck from "@/models/Deck";
@@ -10,12 +11,12 @@ import VictorianTable from "@/models/VictorianTable";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
-import Loader from "./components/Loader";
+import { cardProps } from "./types/Card";
 
 // import io from 'socket.io-client'
 // let socket;
 
-const startingCards = [];
+const startingCards: cardProps[] = [];
 for (let i = 0; i < 7; i++) {
   startingCards.push({
     id: deck[i].id,
@@ -26,27 +27,27 @@ const startingDeck = deck;
 
 export default function App() {
   // const [deck, setDeck] = useState(deck);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
-  const [cards, setCards] = useState(startingCards);
-  const [cardStack, setCardStack] = useState([]);
-  const [deck, setDeck] = useState(startingDeck);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isHovering, setIsHovering] = useState<boolean>(false);
+  const [cards, setCards] = useState<cardProps[]>(startingCards);
+  const [cardStack, setCardStack] = useState<cardProps[]>([]);
+  const [deck, setDeck] = useState<cardProps[]>(startingDeck);
 
-  const [bgColor, setBgColor] = useState("blue");
-  const [rotationDirection, setRotationDirection] = useState(true);
+  const [bgColor, setBgColor] = useState<string>("blue");
+  const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
-  const shuffleDeck = (d) => {
+  const shuffleDeck = (d: cardProps[]) => {
     // Fisher-Yates shuffle
     for (let i = d.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [d[i], d[j]] = [d[j], d[i]];
     }
-    setDeck(deck);
+    setDeck(d);
   };
 
   useEffect(() => {
     if (cardStack.length > 0) {
-      let [color, value] = cardStack[cardStack.length - 1].name.split("/");
+      const [color, value] = cardStack[cardStack.length - 1].name.split("/");
       setBgColor(color);
       if (value === "reverse") {
         setRotationDirection((prev) => !prev);

@@ -12,6 +12,7 @@ import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import StackUI from "./components/StackUI";
+import BaseCard from "./models/BaseCard";
 import { cardProps } from "./types/Card";
 
 // import io from 'socket.io-client'
@@ -27,7 +28,15 @@ for (let i = 0; i < 7; i++) {
 const startingDeck = deck;
 
 export default function App() {
-  // const [deck, setDeck] = useState(deck);
+  //Room Settings
+  const [roomName, setRoomName] = useState<string>("");
+  const [roomCode, setRoomCode] = useState<string>("");
+  const maxPlayers = 4;
+
+  //Player Settings
+  const seatIndex = 0;
+  const theta = (seatIndex * Math.PI * 2) / maxPlayers;
+
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isHovering, setIsHovering] = useState<boolean>(false);
   const [cards, setCards] = useState<cardProps[]>(startingCards);
@@ -95,6 +104,14 @@ export default function App() {
           {/* <CardExplosion /> */}
           <OrbitControls enableZoom={true} enabled={!isDragging} />
           {/* <OrbitControls enableZoom={false} enablePan={false} enabled={!isDragging} maxAzimuthAngle minAzimuthAngle minPolarAngle maxPolarAngle /> */}
+          <BaseCard
+            name="blue/7"
+            rotation0={[0, Math.PI / 2, 0]}
+            position0={[0, 4, 4]}
+            rotation1={[-Math.PI / 4, 0, 0]}
+            position1={[1.195, -0.095, 0.01]}
+            rotation2={[0, 0, -0.15]}
+          />
         </Suspense>
       </Canvas>
       <StackUI cardStack={cardStack} setCardStack={setCardStack} />

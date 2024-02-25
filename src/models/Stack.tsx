@@ -52,7 +52,7 @@ const FallingCard = ({ face, index, shake }: FallingCardProps) => {
       ],
       rotation: [-Math.PI / 2, 0, 2 * Math.PI * Math.random()],
 
-      sleepSpeedLimit: 0, // removes wobble
+      sleepSpeedLimit: 1, // removes wobble
     }),
     useRef(null)
   );
@@ -99,9 +99,7 @@ const Stack = ({ cardStack, position }: StackProps) => {
 
   useEffect(() => {
     console.log("cardStack", cardStack);
-    setShake(true);
-    const timeout = setTimeout(() => setShake(false), 1000);
-    return () => clearTimeout(timeout);
+    setShake((prev) => !prev);
   }, [cardStack]);
 
   return (
@@ -109,12 +107,7 @@ const Stack = ({ cardStack, position }: StackProps) => {
       <Plane rotation={[-Math.PI / 2, 0, 0]} />
 
       {cardStack.map(({ id, name }, index) => (
-        <FallingCard
-          key={id}
-          face={name}
-          index={cardStack.length - index}
-          shake={shake}
-        />
+        <FallingCard key={id} face={name} index={index} shake={shake} />
       ))}
     </Physics>
   );

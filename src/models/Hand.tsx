@@ -36,8 +36,9 @@ const newCardCoords = (n: number) => {
 type HandProps = {
   cards: cardProps[];
   setCards: React.Dispatch<React.SetStateAction<cardProps[]>>;
-  position: [number, number, number];
+  // rotation: [number, number, number];
   isDragging: boolean;
+  setIsHovering: React.Dispatch<React.SetStateAction<boolean>>;
   setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
   setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
 };
@@ -45,7 +46,7 @@ type HandProps = {
 const Hand = ({
   cards,
   setCards,
-  position,
+  // position,
   isDragging,
   setIsDragging,
   setCardStack,
@@ -81,7 +82,6 @@ const Hand = ({
           name={card.name}
           x0={card.x}
           y0={card.y}
-          rotX0={-Math.PI / 4}
           rotZ0={card.rotation}
           setIsDragging={setIsDragging}
           setCardStack={setCardStack}

@@ -23,7 +23,7 @@ type CardProps = {
   name: string;
   x0: number;
   y0: number;
-  rotX0: number;
+  isUsersCard: boolean;
   rotZ0: number;
   remove: (id: string) => void;
   setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
@@ -34,20 +34,24 @@ const Card = ({
   x0,
   y0,
   id,
-  rotX0,
+  isUsersCard,
   rotZ0,
   name,
   remove,
-
   setIsDragging,
   setCardStack,
 }: CardProps) => {
   //TODO: make hover global
 
   const ref = useRef<THREE.Group>();
+  const ref2 = useRef<THREE.Group>();
   const scaling = 200;
-  const [relPos, setRelPos] = useState([x0, y0]);
   const z = 0.01;
+  const [cardPos, setCardPos] = useState({
+    x: x0,
+    y: y0,
+  });
+
   const [onTable, setOnTable] = useState(false);
   const [hover, setHover] = useState(false);
 
@@ -73,8 +77,8 @@ const Card = ({
       setIsDragging(active);
       const newX = x / aspect + x0 / scaling;
       const newY = -(y / aspect + y0 / scaling);
-      setRelPos([newX, newY]);
-      set({
+      setCardPos({ x: newX, y: newY });
+      set.start({
         position: [newX, newY, z],
       });
 
@@ -82,9 +86,8 @@ const Card = ({
     },
     //place card on stack or reset to original position
     onDragEnd: () => {
-      console.log("relPos", relPos);
       const eps = 0.5;
-      if (Math.abs(relPos[0]) < eps && Math.abs(relPos[1] - 4) < eps) {
+      if (Math.abs(cardPos.x) < eps && Math.abs(cardPos.y - 4) < eps) {
         setCardStack((prev: cardProps[]) => {
           return [...prev, { id: id, name: name }];
         });
@@ -117,10 +120,17 @@ const Card = ({
     });
   }, [x0, y0, z, rotZ0, set]);
 
+  // useFrame(() => {
+  //   if (ref2.current && name == "yellow/6") {
+  //     console.log("ref1", ref.current.position);
+  //     // console.log("ref2", ref2.current.position, ref2.current.rotation);
+  //   }
+  // });
+
   return (
     <animated.group ref={ref} {...spring2}>
       <animated.group
-        name={name}
+        ref={ref2}
         onClick={(event) => {
           event.stopPropagation();
         }}

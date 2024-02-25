@@ -31,7 +31,7 @@ const Deck = ({
   const [spring, set] = useSpring(() => ({ scale: [1, 1, 1] }));
   const bind = useGesture({
     onHover: ({ hovering }) =>
-      set({
+      set.start({
         scale: hovering ? [1.2, 1.2, 1.2] : [1, 1, 1],
       }),
   });

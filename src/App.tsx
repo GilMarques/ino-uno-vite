@@ -11,6 +11,7 @@ import VictorianTable from "@/models/VictorianTable";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
+import StackUI from "./components/StackUI";
 import { cardProps } from "./types/Card";
 
 // import io from 'socket.io-client'
@@ -71,7 +72,7 @@ export default function App() {
         <Suspense fallback={<Loader />}>
           <axesHelper args={[10]} />
 
-          <VictorianTable position={[0, -3.7, 0]} />
+          <VictorianTable position={[0, -3.6, 0]} />
           <Stack cardStack={cardStack} position={[0, 1.8, 0]} />
           <Deck
             deck={deck}
@@ -96,7 +97,7 @@ export default function App() {
           {/* <OrbitControls enableZoom={false} enablePan={false} enabled={!isDragging} maxAzimuthAngle minAzimuthAngle minPolarAngle maxPolarAngle /> */}
         </Suspense>
       </Canvas>
-      {/* <StackUI cardStack={cardStack} setCardStack={setCardStack} /> */}
+      <StackUI cardStack={cardStack} setCardStack={setCardStack} />
     </div>
   );
 }

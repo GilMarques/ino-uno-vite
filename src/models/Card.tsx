@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 import { animated, useSpring } from "@react-spring/three";
-import { useThree } from "@react-three/fiber";
+import { ThreeEvent, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { cardProps } from "../types/Card";
 
@@ -91,11 +91,11 @@ const Card = ({
         remove(id);
       }
       setOnTable(false);
-      set({ position: [x0 / scaling, -y0 / scaling, z] });
+      set.start({ position: [x0 / scaling, -y0 / scaling, z] });
     },
     //selection scaling
     onHover: ({ hovering }) =>
-      set({
+      set.start({
         scale: hovering ? [1.2, 1.2, 1.2] : [1, 1, 1],
         rotation: hovering ? [0, 0, 0] : [0, 0, rotZ0],
       }),
@@ -103,14 +103,14 @@ const Card = ({
 
   useEffect(() => {
     if (onTable) {
-      set2({ position: [0, 0, 4], rotation: [-Math.PI / 2, 0, 0] });
+      set2.start({ position: [0, 0, 4], rotation: [-Math.PI / 2, 0, 0] });
     } else {
-      set2({ position: [0, 4, 4], rotation: [-Math.PI / 4, 0, 0] });
+      set2.start({ position: [0, 4, 4], rotation: [-Math.PI / 4, 0, 0] });
     }
   }, [onTable, set2]);
 
   useEffect(() => {
-    set({
+    set.start({
       scale: [1, 1, 1],
       position: [x0 / scaling, -y0 / scaling, z],
       rotation: [0, 0, rotZ0],
@@ -124,7 +124,7 @@ const Card = ({
         onClick={(event) => {
           event.stopPropagation();
         }}
-        onPointerOver={(e) => {
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           e.stopPropagation();
           setHover(true);
         }}

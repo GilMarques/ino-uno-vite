@@ -16,23 +16,23 @@ const Background = ({ bgColor }: { bgColor: string }) => {
         });
         break;
       case "blue":
-        setSpring({
+        setSpring.start({
           color: "rgb(85, 85, 255)",
         });
         break;
       case "green":
-        setSpring({
+        setSpring.start({
           color: "rgb(85, 170, 85)",
         });
         break;
       case "yellow":
-        setSpring({
+        setSpring.start({
           color: "rgb(255, 170, 0)",
         });
         break;
 
       default:
-        setSpring({
+        setSpring.start({
           color: "rgb(255, 255, 255)",
         });
         break;

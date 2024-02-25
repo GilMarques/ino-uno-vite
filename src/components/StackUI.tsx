@@ -1,5 +1,12 @@
-const StackUI = ({ cardStack, setCardStack }) => {
-  const handleOnClick = (card) => {
+import { cardProps } from "@/types/Card";
+
+type StackUIProps = {
+  cardStack: cardProps[];
+  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+};
+
+const StackUI = ({ cardStack, setCardStack }: StackUIProps) => {
+  const handleOnClick = (card: string) => {
     setCardStack((prev) => {
       return prev.filter((c) => c.name !== card);
     });
@@ -13,16 +20,15 @@ const StackUI = ({ cardStack, setCardStack }) => {
         {cardStack
           .slice(0, 5)
           .reverse()
-          .map(({ id, name }, index) => (
+          .map(({ id, name }) => (
             <div key={id} className="my-5 flex items-center justify-center">
               <img
                 className="rounded-[8px] border-2 border-black"
-                src={`/assets/cards/${name}.png`}
+                src={`/src/assets/cards/${name}.png`}
                 width={50}
                 height={100}
                 alt={`${name}`}
                 onClick={() => handleOnClick(name)}
-                priority
               />
             </div>
           ))}

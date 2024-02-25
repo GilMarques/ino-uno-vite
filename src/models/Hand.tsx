@@ -14,9 +14,9 @@ const coordsCache: coordsCacheProps = {
 
 const newCardCoords = (n: number) => {
   if (coordsCache[n]) return coordsCache[n];
-  const coords = calculateCoords(n, 800, 200, 300, "N", 0.4);
+  const coords = calculateCoords(n, 1500, 200, 400, "N", 0.4);
   const m = Math.floor(n / 2);
-  let centerx;
+  let centerx: number;
   if (n % 2 == 0) {
     centerx = (coords[m - 1].x + coords[m].x) / 2;
     for (let i = 0; i < n; i++) {
@@ -29,7 +29,7 @@ const newCardCoords = (n: number) => {
     }
   }
   coordsCache[n] = coords;
-  console.log("coordsCache", coordsCache);
+
   return coords;
 };
 
@@ -73,7 +73,7 @@ const Hand = ({
   }, [cards]);
 
   return (
-    <group rotation={[0, Math.PI / 4, 0]}>
+    <group rotation={[0, 0, 0]}>
       {hand.map((card) => (
         <Card
           key={card.id}

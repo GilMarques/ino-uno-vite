@@ -41,8 +41,6 @@ const Background = ({ bgColor }: { bgColor: string }) => {
 
   return (
     <group dispose={null} name={"background"} renderOrder={-1}>
-      {/* <a.directionalLight position={[0, 0, 0]} intensity={0.2} color={"blue"} /> */}
-
       <mesh>
         <sphereGeometry args={[200, 64, 64]} />
         <animated.meshBasicMaterial {...spring} side={THREE.DoubleSide} />

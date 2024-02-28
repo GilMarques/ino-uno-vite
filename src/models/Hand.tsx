@@ -1,7 +1,8 @@
 import calculateCoords from "@/lib/card_fanning";
 import { coordProps, handProps } from "@/types/Hand";
+import { cardProps } from "@/types/types";
 import { useEffect, useState } from "react";
-import { cardProps } from "../types/Card";
+
 import Card from "./Card";
 
 type coordsCacheProps = {
@@ -34,27 +35,30 @@ const newCardCoords = (n: number) => {
 };
 
 type HandProps = {
+  playerID: number;
   cards: cardProps[];
   setCards: React.Dispatch<React.SetStateAction<cardProps[]>>;
-  // rotation: [number, number, number];
+  rotation: [number, number, number];
   isDragging: boolean;
-  setIsHovering: React.Dispatch<React.SetStateAction<boolean>>;
+  hoverCard: (id: string) => void;
   setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
-  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  playCard: (id: string, name: string) => void;
 };
 
 const Hand = ({
   cards,
   setCards,
-  // position,
-  isDragging,
-  setIsDragging,
-  setCardStack,
-}: HandProps) => {
-  const [hand, setHand] = useState<handProps[]>([]);
+  rotation,
+  hoverCard,
+  playCard,
 
-  const removeCard = (id: string) =>
-    setCards((prev) => prev.filter((card: cardProps) => card.id !== id));
+  setIsDragging,
+}: HandProps) => {
+  const removeFromHand = (id: string) => {
+    setCards(cards.filter((card) => card.id !== id));
+  };
+
+  const [hand, setHand] = useState<handProps[]>([]);
 
   useEffect(() => {
     const newHand: handProps[] = [];
@@ -69,23 +73,22 @@ const Hand = ({
         rotation: 2 * Math.PI - newCoords[i].angle,
       });
     }
-    console.log("newHand:", newHand);
     setHand(newHand);
   }, [cards]);
 
   return (
-    <group rotation={[0, 0, 0]}>
+    <group rotation={rotation}>
       {hand.map((card) => (
         <Card
+          hoverCard={hoverCard}
           key={card.id}
           id={card.id}
           name={card.name}
-          x0={card.x}
-          y0={card.y}
+          position={{ x: card.x, y: card.y }}
           rotZ0={card.rotation}
           setIsDragging={setIsDragging}
-          setCardStack={setCardStack}
-          remove={removeCard}
+          playCard={playCard}
+          removeFromHand={removeFromHand}
         />
       ))}
     </group>

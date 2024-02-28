@@ -2,16 +2,10 @@ import { cardProps } from "@/types/Card";
 
 type StackUIProps = {
   cardStack: cardProps[];
-  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  removeCard: (name: string) => void;
 };
 
-const StackUI = ({ cardStack, setCardStack }: StackUIProps) => {
-  const handleOnClick = (card: string) => {
-    setCardStack((prev) => {
-      return prev.filter((c) => c.name !== card);
-    });
-  };
-
+const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
   return (
     <div className="absolute right-10 top-10 border-2 border-black bg-white">
       <div className="w-32 flex-col border-2 border-black">
@@ -28,7 +22,7 @@ const StackUI = ({ cardStack, setCardStack }: StackUIProps) => {
                 width={50}
                 height={100}
                 alt={`${name}`}
-                onClick={() => handleOnClick(name)}
+                onClick={() => removeCard(id)}
               />
             </div>
           ))}

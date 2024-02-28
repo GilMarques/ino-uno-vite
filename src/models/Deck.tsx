@@ -3,7 +3,6 @@ import * as THREE from "three";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 
-import { cardProps } from "@/types/Card";
 import { animated, useSpring } from "@react-spring/three";
 import { useGesture } from "@use-gesture/react";
 
@@ -14,20 +13,12 @@ const CARD_RADIUS = 0.07;
 const CARD_SMOOTHNESS = 10;
 
 type DeckProps = {
-  deck: cardProps[];
-  setDeck: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  deckLength: number;
   position: [number, number, number];
-  setCards: React.Dispatch<React.SetStateAction<cardProps[]>>;
-  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  drawCard: () => void;
 };
 
-const Deck = ({
-  deck,
-  setDeck,
-  position,
-  setCards,
-  setCardStack,
-}: DeckProps) => {
+const Deck = ({ deckLength, drawCard, position }: DeckProps) => {
   const [spring, set] = useSpring(() => ({ scale: [1, 1, 1] }));
   const bind = useGesture({
     onHover: ({ hovering }) =>
@@ -36,19 +27,11 @@ const Deck = ({
       }),
   });
 
-  const handleClick = () => {
-    if (deck.length === 0) {
-      return;
-    }
-    const newCard = deck.pop();
-    setDeck(deck);
-    setCards((prev) => [...prev, newCard!]);
-  };
-
   return (
     <group name={"deck"} rotation={[Math.PI / 2, 0, 0]} position={position}>
       <animated.mesh
-        onClick={handleClick}
+        visible={deckLength > 0}
+        onClick={drawCard}
         {...spring}
         {...bind()}
         castShadow
@@ -56,7 +39,7 @@ const Deck = ({
         geometry={RoundedBoxFlat(
           CARD_WIDTH,
           CARD_HEIGHT,
-          CARD_DEPTH * deck.length,
+          CARD_DEPTH * deckLength,
           CARD_RADIUS,
           CARD_SMOOTHNESS
         )}

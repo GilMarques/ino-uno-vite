@@ -98,7 +98,7 @@ const Stack = ({ cardStack, position }: StackProps) => {
   const [shake, setShake] = useState(false);
 
   useEffect(() => {
-    console.log("cardStack", cardStack);
+    // console.log("cardStack", cardStack);
     setShake((prev) => !prev);
   }, [cardStack]);
 

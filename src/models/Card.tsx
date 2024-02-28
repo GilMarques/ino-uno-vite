@@ -6,9 +6,8 @@ import * as THREE from "three";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 import { animated, useSpring } from "@react-spring/three";
-import { ThreeEvent, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
-import { cardProps } from "../types/Card";
 
 //https://docs.pmnd.rs/react-three-fiber/api/events
 
@@ -21,46 +20,38 @@ const CARD_SMOOTHNESS = 10;
 type CardProps = {
   id: string;
   name: string;
-  x0: number;
-  y0: number;
-  isUsersCard: boolean;
+  position: { x: number; y: number };
   rotZ0: number;
-  remove: (id: string) => void;
   setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
-  setCardStack: React.Dispatch<React.SetStateAction<cardProps[]>>;
+  hoverCard: (id: string) => void;
+  playCard: (id: string, name: string) => void;
+  removeFromHand: (id: string) => void;
 };
 
 const Card = ({
-  x0,
-  y0,
+  position,
   id,
-  isUsersCard,
-  rotZ0,
   name,
-  remove,
+  playCard,
+  removeFromHand,
+  rotZ0,
+  hoverCard,
   setIsDragging,
-  setCardStack,
 }: CardProps) => {
-  //TODO: make hover global
-
   const ref = useRef<THREE.Group>();
   const ref2 = useRef<THREE.Group>();
   const scaling = 200;
   const z = 0.01;
-  const [cardPos, setCardPos] = useState({
-    x: x0,
-    y: y0,
-  });
+  const [cardPos, setCardPos] = useState(position);
 
   const [onTable, setOnTable] = useState(false);
-  const [hover, setHover] = useState(false);
 
   const { size, viewport } = useThree();
   const aspect = size.width / viewport.width;
 
   const [spring, set] = useSpring(() => ({
     scale: [1, 1, 1],
-    position: [x0 / scaling, -y0 / scaling, z],
+    position: [position.x / scaling, -position.y / scaling, z],
     rotation: [0, 0, rotZ0],
     config: { friction: 15 },
   }));
@@ -75,57 +66,48 @@ const Card = ({
     //move card
     onDrag: ({ active, movement: [x, y] }) => {
       setIsDragging(active);
-      const newX = x / aspect + x0 / scaling;
-      const newY = -(y / aspect + y0 / scaling);
+      const newX = x / aspect + position.x / scaling;
+      const newY = -(y / aspect + position.y / scaling);
       setCardPos({ x: newX, y: newY });
-      set.start({
+      set({
         position: [newX, newY, z],
       });
-
       setOnTable(newY > 1);
     },
     //place card on stack or reset to original position
     onDragEnd: () => {
-      const eps = 0.5;
-      if (Math.abs(cardPos.x) < eps && Math.abs(cardPos.y - 4) < eps) {
-        setCardStack((prev: cardProps[]) => {
-          return [...prev, { id: id, name: name }];
-        });
-        remove(id);
+      if (Math.abs(cardPos.x) < 0.5 && Math.abs(cardPos.y - 4) < 0.5) {
+        playCard(id, name);
+        removeFromHand(id);
       }
       setOnTable(false);
-      set.start({ position: [x0 / scaling, -y0 / scaling, z] });
+      set({ position: [position.x / scaling, -position.y / scaling, z] });
     },
     //selection scaling
-    onHover: ({ hovering }) =>
-      set.start({
+    onHover: ({ hovering }) => {
+      hoverCard(id);
+      set({
         scale: hovering ? [1.2, 1.2, 1.2] : [1, 1, 1],
         rotation: hovering ? [0, 0, 0] : [0, 0, rotZ0],
-      }),
+      });
+    },
   });
 
   useEffect(() => {
     if (onTable) {
-      set2.start({ position: [0, 0, 4], rotation: [-Math.PI / 2, 0, 0] });
+      set2({ position: [0, 0, 4], rotation: [-Math.PI / 2, 0, 0] });
     } else {
-      set2.start({ position: [0, 4, 4], rotation: [-Math.PI / 4, 0, 0] });
+      set2({ position: [0, 4, 4], rotation: [-Math.PI / 4, 0, 0] });
     }
   }, [onTable, set2]);
 
   useEffect(() => {
-    set.start({
+    set({
       scale: [1, 1, 1],
-      position: [x0 / scaling, -y0 / scaling, z],
+      position: [position.x / scaling, -position.y / scaling, z],
       rotation: [0, 0, rotZ0],
     });
-  }, [x0, y0, z, rotZ0, set]);
-
-  // useFrame(() => {
-  //   if (ref2.current && name == "yellow/6") {
-  //     console.log("ref1", ref.current.position);
-  //     // console.log("ref2", ref2.current.position, ref2.current.rotation);
-  //   }
-  // });
+  }, [position, z, rotZ0, set]);
 
   return (
     <animated.group ref={ref} {...spring2}>
@@ -134,14 +116,8 @@ const Card = ({
         onClick={(event) => {
           event.stopPropagation();
         }}
-        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation();
-          setHover(true);
-        }}
-        onPointerOut={(e) => {
-          e.stopPropagation();
-          setHover(false);
-        }}
+        //   onPointerEnter={() => setShiny(true)}
+        // onPointerLeave={() => setShiny(false)}
         {...spring}
         {...bind()}
       >

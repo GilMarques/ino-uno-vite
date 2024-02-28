@@ -18,20 +18,14 @@ const TableRotation = ({
     config: { tension: 170, friction: 26 },
   }));
 
+  //Todo: use deltas
   useFrame(() => {
     if (ref.current) ref.current.rotation.z -= 0.01;
   });
 
   useEffect(() => {
-    console.log("rotationDirection", rotationDirection);
     if (ref.current) {
       setSpring.start({
-        // from: {
-        //   scale: [1, 1, 1],
-        //   rotation: rotationDirection
-        //     ? [-Math.PI / 2, Math.PI, ref.current.rotation.z]
-        //     : [-Math.PI / 2, 0, ref.current.rotation.z],
-        // },
         to: [
           {
             scale: [0, 0, 1],
@@ -62,14 +56,13 @@ const TableRotation = ({
   return (
     <group dispose={null} renderOrder={-1}>
       <animated.spotLight position={[0, 5, 0]} intensity={10} color={"white"} />
-      <ambientLight intensity={1} color={"white"} />
+
       <animated.mesh
         ref={ref}
         rotation={[-Math.PI / 2, Math.PI, 0]}
         {...spring}
       >
         <planeGeometry args={[1, 1]} />
-
         <meshLambertMaterial
           map={texture}
           transparent={true}

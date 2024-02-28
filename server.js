@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-
+import deck from "./startingDeck.js";
 const port = 3000;
 
 const app = express();
@@ -14,43 +14,48 @@ const io = new Server(server, {
 });
 
 // Update Name Space ----------------------------------------
+let serverDeck = deck;
+let cardStack = [deck.pop()];
+let maxSeats = 4;
+let serverData = [];
 
+let bgColor = "white";
+let rotationDirection = false;
 const updateNameSpace = io.of("/update");
 const connectedSockets = new Map();
 
+const shuffleDeck = (deck) => {
+  // Fisher-Yates shuffle
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+};
+
+const rules = (card) => {
+  return true;
+};
+
 updateNameSpace.on("connection", (socket) => {
-  socket.userData = {
-    index: 0,
-  };
-
   connectedSockets.set(socket.id, socket);
-  console.log(`${socket.id} has connected to update namespace`);
+  console.log("Socket connected:", socket.id);
 
-  socket.on("setID", () => {
-    updateNameSpace.emit("setID", socket.id);
+  socket.on("drawCard", () => {});
 
-    socket.on("disconnect", () => {
-      console.log(`${socket.id} has disconnected`);
-      connectedSockets.delete(socket.id);
-      updateNameSpace.emit("removePlayer", socket.id);
-    });
+  socket.on("join", () => {});
+
+  socket.on("playCard", (card) => {});
+  socket.on("removeCard", (card) => {});
+
+  // socket.on("hoverCard", () => {});
+
+  socket.on("shuffleBack", () => {});
+
+  socket.on("disconnect", () => {
+    console.log(`${socket.id} has disconnected`);
+    connectedSockets.delete(socket.id);
+    updateNameSpace.emit("removePlayer", socket.id);
   });
-
-  setInterval(() => {
-    const playerData = [];
-    for (const socket of connectedSockets.values()) {
-      if (socket.userData.name !== "" && socket.userData.avatarSkin !== "") {
-        playerData.push({});
-      }
-    }
-    console.log(playerData);
-
-    // if (socket.userData.name === "" || socket.userData.avatarSkin === "") {
-    //   return;
-    // } else {
-    //   updateNameSpace.emit("playerData", playerData);
-    // }
-  }, 20);
 });
 
 server.listen(port, () => {

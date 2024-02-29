@@ -8,20 +8,20 @@ import Stack from "@/models/Stack";
 import VictorianTable from "@/models/VictorianTable";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import StackUI from "./components/StackUI";
-import OthersCard from "./models/OthersCard";
+import OtherHand from "./models/OtherHand";
 import TableRotation from "./models/TableRotation";
 import { cardProps } from "./types/types";
 
 const maxPlayers = 4;
 
 //Player Settings
+const seat = Math.floor(Math.random() * maxPlayers);
 
 export default function App({ updateSocket }) {
   const drawCard = useCallback(() => {
-    console.log("drawCard");
-    updateSocket.emit("drawCard");
+    updateSocket.emit("drawCard", seat);
   }, [updateSocket]);
 
   const playCard = useCallback(
@@ -37,75 +37,99 @@ export default function App({ updateSocket }) {
 
   const hoverCard = useCallback(
     (id) => {
-      console.log("hover");
-      updateSocket.emit("hoverCard", {
-        id: id,
-        playerId: socketId.current,
-      });
+      // console.log("hover");
+      // updateSocket.emit("hoverCard", {
+      //   id: id,
+      //   playerId: socketId.current,
+      // });
     },
     [updateSocket]
   );
 
   const removeCard = useCallback(
-    (id) => {
-      console.log("removeCard");
-      updateSocket.emit("removeCard", {
-        id: id,
+    (card) => {
+      console.log("stackRemove");
+      updateSocket.emit("stackRemove", {
+        seat,
+        card,
       });
     },
     [updateSocket]
   );
 
-  const socketId = useRef<string>();
-  const seatIndex = useRef<number>(0);
-  const theta = (seatIndex.current * Math.PI * 2) / maxPlayers;
+  const theta = (seat * (Math.PI * 2)) / maxPlayers;
   //Frontend
   const [isDragging, setIsDragging] = useState<boolean>(false);
-
-  const [cards, setCards] = useState<cardProps[]>([]);
   const [serverData, setServerData] = useState([]);
+  const [cards, setCards] = useState<cardProps[]>([]);
 
   const [cardStack, setCardStack] = useState<cardProps[]>([]);
 
   const [deckLength, setDeckLength] = useState<number>(60);
 
-  const [bgColor, setBgColor] = useState<string>("blue");
+  const [bgColor, setBgColor] = useState<string>("white");
   const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
   useEffect(() => {
-    // no-op if the socket is already connected
-    updateSocket.connect();
+    if (serverData.length)
+      setCards((prev) => [...serverData[seat].cards, ...prev]);
+  }, [serverData]);
 
-    return () => {
-      updateSocket.disconnect();
-    };
+  useEffect(() => {
+    updateSocket.connect();
+    return () => updateSocket.disconnect();
   }, []);
 
   useEffect(() => {
-    updateSocket.emit("join");
+    console.log("seat", seat);
+    updateSocket.emit("join", seat);
 
-    const onInfo = (data) => {};
+    const onPlayerJoined = ({
+      serverData,
+      serverStack,
+      deckLength,
+      serverColor,
+      serverRotation,
+    }) => {
+      setServerData(serverData);
+      setCardStack(serverStack);
+      setDeckLength(deckLength);
+      setBgColor(serverColor);
+      setRotationDirection(serverRotation);
+    };
 
-    const onAddCard = ({ playerID, id, name, deckLength }) => {};
+    const onCardDrawn = ({ serverData, deckLength }) => {
+      setServerData(serverData);
+      setDeckLength(deckLength);
+    };
 
-    const onShuffleBack = ({ stack, deckLength }) => {};
+    const onStackRemove = ({ serverData, serverStack, deckLength }) => {
+      setServerData(serverData);
+      setCardStack(serverStack);
+      setDeckLength(deckLength);
+    };
 
-    const onReverse = ({ rotationDirection }) => {};
+    const onShuffle = ({ serverStack, deckLength }) => {
+      setDeckLength(deckLength);
+      setCardStack(serverStack);
+    };
 
-    const onPlayedCard = (data) => {};
+    const onPlayedCard = ({ serverData, serverStack }) => {
+      setServerData(serverData);
+      setCardStack(serverStack);
+    };
 
-    updateSocket.on("info", onInfo);
-    updateSocket.on("addCard", onAddCard);
+    updateSocket.on("playerJoined", onPlayerJoined);
+    updateSocket.on("stackRemove", onStackRemove);
+    updateSocket.on("cardDrawn", onCardDrawn);
     updateSocket.on("playedCard", onPlayedCard);
-    updateSocket.on("reverse", onReverse);
-    updateSocket.on("shuffledBack", onShuffleBack);
+    updateSocket.on("shuffle", onShuffle);
 
     return () => {
-      updateSocket.off("info", onInfo);
-      updateSocket.off("addCard", onAddCard);
+      updateSocket.off("playerJoined", onPlayerJoined);
+      updateSocket.off("addCard", onCardDrawn);
       updateSocket.off("playedCard", onPlayedCard);
-      updateSocket.off("reverse", onReverse);
-      updateSocket.off("shuffledBack", onShuffleBack);
+      updateSocket.off("shuffle", onShuffle);
     };
   }, []);
 
@@ -144,14 +168,16 @@ export default function App({ updateSocket }) {
           <TableRotation rotationDirection={rotationDirection} />
 
           <OrbitControls enableZoom={true} enabled={!isDragging} />
-
           {serverData.map(
             (player) =>
               player &&
-              player.id !== socketId.current &&
-              player.cards.map((card, index) => (
-                <OthersCard key={index} name={card.name} />
-              ))
+              player.seat !== seat && (
+                <OtherHand
+                  key={player.seat}
+                  cards={player.cards}
+                  rotation={[0, (player.seat * (Math.PI * 2)) / maxPlayers, 0]}
+                />
+              )
           )}
         </Suspense>
       </Canvas>

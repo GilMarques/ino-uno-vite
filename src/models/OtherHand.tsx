@@ -2,32 +2,15 @@ import newCardCoords from "@/lib/coordsCache";
 import { handProps } from "@/types/Hand";
 import { cardProps } from "@/types/types";
 import { useEffect, useState } from "react";
-import Card from "./Card";
+import OtherCard from "./OtherCard";
 
-type HandProps = {
-  playerID: number;
+type OtherHandProps = {
   cards: cardProps[];
-  setCards: React.Dispatch<React.SetStateAction<cardProps[]>>;
+
   rotation: [number, number, number];
-  isDragging: boolean;
-  hoverCard: (id: string) => void;
-  setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
-  playCard: (id: string, name: string) => void;
 };
 
-const Hand = ({
-  cards,
-  setCards,
-  rotation,
-  hoverCard,
-  playCard,
-
-  setIsDragging,
-}: HandProps) => {
-  const removeFromHand = (id: string) => {
-    setCards(cards.filter((card) => card.id !== id));
-  };
-
+const OtherHand = ({ cards, setCards, rotation }: OtherHandProps) => {
   const [hand, setHand] = useState<handProps[]>([]);
 
   useEffect(() => {
@@ -49,20 +32,16 @@ const Hand = ({
   return (
     <group rotation={rotation}>
       {hand.map((card) => (
-        <Card
+        <OtherCard
           key={card.id}
-          hoverCard={hoverCard}
           id={card.id}
           name={card.name}
           position={{ x: card.x, y: card.y }}
           rotZ0={card.rotation}
-          setIsDragging={setIsDragging}
-          playCard={playCard}
-          removeFromHand={removeFromHand}
         />
       ))}
     </group>
   );
 };
 
-export default Hand;
+export default OtherHand;

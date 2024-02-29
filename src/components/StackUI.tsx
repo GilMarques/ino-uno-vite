@@ -2,7 +2,7 @@ import { cardProps } from "@/types/Card";
 
 type StackUIProps = {
   cardStack: cardProps[];
-  removeCard: (name: string) => void;
+  removeCard: (card: cardProps) => void;
 };
 
 const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
@@ -22,7 +22,7 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
                 width={50}
                 height={100}
                 alt={`${name}`}
-                onClick={() => removeCard(id)}
+                onClick={() => removeCard({ id, name })}
               />
             </div>
           ))}

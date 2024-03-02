@@ -1,11 +1,12 @@
 "use client";
-import deck from "@/lib/startingDeck";
 import textureMap from "@/lib/texture";
 import * as THREE from "three";
+import deck from "../../startingDeck";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 
 import { useFrame } from "@react-three/fiber";
+import { easing } from "maath";
 import { useRef } from "react";
 
 //https://github.com/mrdoob/three.js/blob/master/examples/webgl_instancing_performance.html
@@ -16,36 +17,31 @@ var CARD_DEPTH = 0.001;
 var CARD_RADIUS = 0.07;
 var CARD_SMOOTHNESS = 10;
 
-// Function to generate a random number following a standard normal distribution
-function randn_bm() {
-  var u = 0,
-    v = 0;
-  while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-  while (v === 0) v = Math.random();
-  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-}
-
-// Function to generate a random number with a specified mean and standard deviation
-function randn(mean, stdev) {
-  return mean + stdev * randn_bm();
-}
-
-// Example usage
-
 const pointingAway = (function () {
-  let x, y, z, w, randomNumber;
+  let x, y, z, w;
 
   const vFrom = new THREE.Vector3(0, 1, 0);
   const vTo = new THREE.Vector3();
-  const euler = new THREE.Euler();
-  const mean = 0; // Mean of the distribution
-  const stdev = 10; // Standard deviation of the distribution
+
+  function randomFromInterval(min, max) {
+    return Math.random() * (max - min + 1) + min;
+  }
 
   return (position, quaternion, scale) => {
-    randomNumber = randn(mean, stdev);
-    x = Math.random() * 10 - 5;
-    y = Math.random() * 10 - 5;
-    z = Math.random() * 10 - 5;
+    const a = 5,
+      b = 1;
+    x =
+      Math.random() > 0.5
+        ? randomFromInterval(-a, -b)
+        : randomFromInterval(a, b);
+    y =
+      Math.random() > 0.5
+        ? randomFromInterval(-a, -b)
+        : randomFromInterval(a, b);
+    z =
+      Math.random() > 0.5
+        ? randomFromInterval(-a, -b)
+        : randomFromInterval(a, b);
     position.x = x;
     position.y = y;
     position.z = z;
@@ -58,18 +54,29 @@ const pointingAway = (function () {
   };
 })();
 
-const CardExplosion = () => {
+const Newdeck = [...deck, ...deck];
+
+const CardExplosion = ({ active }) => {
   const ref = useRef();
 
-  useFrame(() => {
-    ref.current.rotation.y += 0.0005;
+  useFrame((state, delta) => {
+    if (!active) {
+      state.events.update();
+
+      easing.damp3(
+        ref.current.rotation,
+        [-0.5 * state.pointer.y, 0.5 * state.pointer.x, 0],
+        0.3,
+        delta
+      );
+    } else {
+      ref.current.rotation.y += 0.1;
+    }
   });
 
   return (
     <group ref={ref}>
-      {deck.map((card) => {
-        // const matrix = new THREE.Matrix4();
-
+      {Newdeck.map((card, index) => {
         const position = new THREE.Vector3();
         const quaternion = new THREE.Quaternion();
         const rotation = new THREE.Euler();
@@ -79,7 +86,7 @@ const CardExplosion = () => {
 
         return (
           <mesh
-            key={card.id}
+            key={index}
             castShadow
             receiveShadow
             geometry={RoundedBoxFlat(

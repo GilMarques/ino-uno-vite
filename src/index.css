@@ -3,11 +3,15 @@
 @tailwind utilities;
 
 
-/* body {
-    cursor: none;
-} */
+body {
+    cursor: grab;
+}
+body:active {
+    cursor: grabbing;
+}
 
 canvas {
+ 
     position: fixed;
     top: 0;
     left: 0;

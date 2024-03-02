@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
+import { cardProps } from "@/types/types";
 import { animated, useSpring } from "@react-spring/three";
 import { useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
@@ -24,8 +25,16 @@ type CardProps = {
   rotZ0: number;
   setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
   hoverCard: (id: string) => void;
-  playCard: (id: string, name: string) => void;
+  playCard: (card: cardProps) => void;
   removeFromHand: (id: string) => void;
+};
+
+const emissiveIntensity = {
+  red: 1,
+  blue: 2.5,
+  green: 2,
+  yellow: 0.2,
+  black: 1,
 };
 
 const Card = ({
@@ -37,7 +46,10 @@ const Card = ({
   rotZ0,
   hoverCard,
   setIsDragging,
+  bgColor,
+  setColorChangerActive,
 }: CardProps) => {
+  const color = name.split("/")[0];
   const ref = useRef<THREE.Group>();
   const ref2 = useRef<THREE.Group>();
   const scaling = 200;
@@ -77,7 +89,10 @@ const Card = ({
     //place card on stack or reset to original position
     onDragEnd: () => {
       if (Math.abs(cardPos.x) < 0.5 && Math.abs(cardPos.y - 4) < 0.5) {
-        playCard(id, name);
+        playCard({ id, name });
+        if (name.split("/")[0] === "black") {
+          setColorChangerActive(true);
+        }
         removeFromHand(id);
       }
       setOnTable(false);
@@ -136,6 +151,8 @@ const Card = ({
             attach="material-0"
             map={textureMap[name]}
             side={THREE.DoubleSide}
+            emissive={color === bgColor ? new THREE.Color(bgColor) : "black"}
+            emissiveIntensity={emissiveIntensity[color]}
           />
           <meshStandardMaterial
             attach="material-1"

@@ -40,7 +40,7 @@ const Plane = (props) => {
 };
 
 const FallingCard = ({ face, index, shake }: FallingCardProps) => {
-  const args = [CARD_WIDTH, CARD_HEIGHT, CARD_DEPTH];
+  const args = [CARD_WIDTH, CARD_HEIGHT, CARD_DEPTH + 0.01];
   const [ref, api] = useBox(
     () => ({
       args,
@@ -104,11 +104,18 @@ const Stack = ({ cardStack, position }: StackProps) => {
 
   return (
     <Physics allowSleep={true}>
-      <Plane rotation={[-Math.PI / 2, 0, 0]} />
+      <Plane position={position} rotation={[-Math.PI / 2, 0, 0]} />
 
-      {cardStack.map(({ id, name }, index) => (
-        <FallingCard key={id} face={name} index={index} shake={shake} />
-      ))}
+      {cardStack.map(({ id, name }, index) => {
+        return (
+          <FallingCard
+            key={id}
+            face={name}
+            index={2 * cardStack.length - index}
+            shake={shake}
+          />
+        );
+      })}
     </Physics>
   );
 };

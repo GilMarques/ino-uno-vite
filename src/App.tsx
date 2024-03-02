@@ -1,23 +1,25 @@
 "use client";
 
-import Loader from "@/components/Loader";
-import Background from "@/models/Background";
-import Deck from "@/models/Deck";
-import Hand from "@/models/Hand";
-import Stack from "@/models/Stack";
-import VictorianTable from "@/models/VictorianTable";
+import { cardProps } from "@/types/types";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import Loader from "./components/Loader";
 import StackUI from "./components/StackUI";
+import Background from "./models/Background";
+import ColorChanger from "./models/ColorChanger";
+import Deck from "./models/Deck";
+import Hand from "./models/Hand";
 import OtherHand from "./models/OtherHand";
+import Stack from "./models/Stack";
 import TableRotation from "./models/TableRotation";
-import { cardProps } from "./types/types";
-
+import VictorianTable from "./models/VictorianTable";
 const maxPlayers = 4;
 
 //Player Settings
-const seat = Math.floor(Math.random() * maxPlayers);
+// const seat = Math.floor(Math.random() * maxPlayers);
+const seat = 0;
+const theta = (seat * (Math.PI * 2)) / maxPlayers;
 
 export default function App({ updateSocket }) {
   const drawCard = useCallback(() => {
@@ -25,11 +27,11 @@ export default function App({ updateSocket }) {
   }, [updateSocket]);
 
   const playCard = useCallback(
-    (id, name) => {
+    (card) => {
       console.log("playCard");
       updateSocket.emit("playCard", {
-        id: id,
-        name: name,
+        seat,
+        card,
       });
     },
     [updateSocket]
@@ -57,9 +59,26 @@ export default function App({ updateSocket }) {
     [updateSocket]
   );
 
-  const theta = (seat * (Math.PI * 2)) / maxPlayers;
+  const changeBgColor = useCallback(
+    (color) => {
+      console.log(color);
+      setColorChangerActive(false);
+      updateSocket.emit("changeColor", color);
+    },
+    [updateSocket]
+  );
+
+  const shuffleDeck = useCallback(() => {
+    console.log("shuffle");
+    updateSocket.emit("shuffle");
+  }, [updateSocket]);
+  const orbitRef = useRef();
+
   //Frontend
+  const [colorChangerActive, setColorChangerActive] = useState(false);
+
   const [isDragging, setIsDragging] = useState<boolean>(false);
+
   const [serverData, setServerData] = useState([]);
   const [cards, setCards] = useState<cardProps[]>([]);
 
@@ -71,8 +90,17 @@ export default function App({ updateSocket }) {
   const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
   useEffect(() => {
-    if (serverData.length)
-      setCards((prev) => [...serverData[seat].cards, ...prev]);
+    console.log("serverData", serverData);
+    console.log("cardStack", cardStack);
+    console.log("deckLength", deckLength);
+    console.log("bgColor", bgColor);
+    console.log("rotationDirection", rotationDirection);
+  }, [serverData, cardStack, deckLength, bgColor, rotationDirection]);
+
+  useEffect(() => {
+    if (serverData[seat]?.cards.length > 0) {
+      setCards(serverData[seat].cards);
+    }
   }, [serverData]);
 
   useEffect(() => {
@@ -84,52 +112,76 @@ export default function App({ updateSocket }) {
     console.log("seat", seat);
     updateSocket.emit("join", seat);
 
-    const onPlayerJoined = ({
+    function onPlayerJoined({
       serverData,
       serverStack,
       deckLength,
       serverColor,
       serverRotation,
-    }) => {
+    }) {
+      console.log("playerJoined");
+
       setServerData(serverData);
       setCardStack(serverStack);
       setDeckLength(deckLength);
       setBgColor(serverColor);
       setRotationDirection(serverRotation);
-    };
+    }
 
-    const onCardDrawn = ({ serverData, deckLength }) => {
-      setServerData(serverData);
-      setDeckLength(deckLength);
-    };
-
-    const onStackRemove = ({ serverData, serverStack, deckLength }) => {
+    function onCardDrawn({ serverData, serverStack, deckLength }) {
+      console.log("cardDrawn");
       setServerData(serverData);
       setCardStack(serverStack);
       setDeckLength(deckLength);
-    };
+    }
 
-    const onShuffle = ({ serverStack, deckLength }) => {
-      setDeckLength(deckLength);
-      setCardStack(serverStack);
-    };
-
-    const onPlayedCard = ({ serverData, serverStack }) => {
+    function onRemovedFromStack({
+      serverData,
+      serverStack,
+      serverRotation,
+      serverColor,
+    }) {
+      console.log("stackRemove");
       setServerData(serverData);
       setCardStack(serverStack);
-    };
+      setRotationDirection(serverRotation);
+      setBgColor(serverColor);
+    }
+
+    function onShuffled({ serverStack, deckLength }) {
+      setCardStack(serverStack);
+      setDeckLength(deckLength);
+    }
+
+    function onPlayedCard({
+      serverData,
+      serverStack,
+      serverRotation,
+      serverColor,
+    }) {
+      console.log("playedCard");
+
+      setServerData(serverData);
+      setCardStack(serverStack);
+      setRotationDirection(serverRotation);
+      setBgColor(serverColor);
+    }
+
+    function onChangedColor(color) {
+      setBgColor(color);
+    }
 
     updateSocket.on("playerJoined", onPlayerJoined);
-    updateSocket.on("stackRemove", onStackRemove);
+    updateSocket.on("removedFromStack", onRemovedFromStack);
     updateSocket.on("cardDrawn", onCardDrawn);
     updateSocket.on("playedCard", onPlayedCard);
-    updateSocket.on("shuffle", onShuffle);
-
+    updateSocket.on("shuffled", onShuffled);
+    updateSocket.on("changedColor", onChangedColor);
     return () => {
       updateSocket.off("playerJoined", onPlayerJoined);
       updateSocket.off("addCard", onCardDrawn);
       updateSocket.off("playedCard", onPlayedCard);
-      updateSocket.off("shuffle", onShuffle);
+      updateSocket.off("shuffle", onShuffled);
     };
   }, []);
 
@@ -138,19 +190,23 @@ export default function App({ updateSocket }) {
       <Canvas
         className="h-screen w-full bg-transparent"
         camera={{
+          fov: 60,
           near: 0.1,
           far: 1000,
-          position: [0, 7, 6],
+          position: [4 * Math.sin(theta), 7, 4 * Math.cos(theta)],
         }}
       >
+        {/* <MainMenu /> */}
         <Suspense fallback={<Loader />}>
-          <axesHelper args={[10]} />
+          <axesHelper args={[10, 10, 10]} />
           <ambientLight intensity={1} color={"white"} />
           <VictorianTable position={[0, -3.6, 0]} />
-          <Stack cardStack={cardStack} position={[0, 1.8, 0]} />
+
+          <Stack cardStack={cardStack} position={[0, -0.0, 0]} />
           <Deck
             deckLength={deckLength}
-            position={[1, 0, 0]}
+            shuffleDeck={shuffleDeck}
+            position={[1, 0, 1]}
             drawCard={drawCard}
           />
 
@@ -162,12 +218,25 @@ export default function App({ updateSocket }) {
             setIsDragging={setIsDragging}
             isDragging={isDragging}
             playCard={playCard}
+            bgColor={bgColor}
+            setColorChangerActive={setColorChangerActive}
           />
 
           <Background bgColor={bgColor} />
           <TableRotation rotationDirection={rotationDirection} />
-
-          <OrbitControls enableZoom={true} enabled={!isDragging} />
+          {/* <Stool position={[0, 0, -1]} scale={5} /> */}
+          <OrbitControls
+            ref={orbitRef}
+            enabled={!isDragging}
+            enableZoom={false}
+            enablePan={false}
+            rotateSpeed={0.1}
+            dampingFactor={0.03}
+            minAzimuthAngle={theta - Math.PI / 6}
+            maxAzimuthAngle={theta + Math.PI / 6}
+            maxPolarAngle={Math.PI / 3}
+            minPolarAngle={Math.PI / 6}
+          />
           {serverData.map(
             (player) =>
               player &&
@@ -179,6 +248,12 @@ export default function App({ updateSocket }) {
                 />
               )
           )}
+
+          <ColorChanger
+            colorChangerActive={colorChangerActive}
+            changeBgColor={changeBgColor}
+            theta={theta}
+          />
         </Suspense>
       </Canvas>
       <StackUI cardStack={cardStack} removeCard={removeCard} />

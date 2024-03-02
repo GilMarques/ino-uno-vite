@@ -12,17 +12,20 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
         <h1 className="text-center">Cards</h1>
 
         {cardStack
+          .toReversed()
           .slice(0, 5)
-          .reverse()
-          .map(({ id, name }) => (
-            <div key={id} className="my-5 flex items-center justify-center">
+          .map((card) => (
+            <div
+              key={card.id}
+              className="my-5 flex items-center justify-center"
+            >
               <img
                 className="rounded-[8px] border-2 border-black"
-                src={`/src/assets/cards/${name}.png`}
+                src={`/src/assets/cards/${card.name}.png`}
                 width={50}
                 height={100}
-                alt={`${name}`}
-                onClick={() => removeCard({ id, name })}
+                alt={`${card.name}`}
+                onClick={() => removeCard(card)}
               />
             </div>
           ))}

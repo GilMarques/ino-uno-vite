@@ -19,6 +19,8 @@ type DeckProps = {
 };
 
 const Deck = ({ deckLength, drawCard, position }: DeckProps) => {
+  let mouseTimer;
+
   const [spring, set] = useSpring(() => ({ scale: [1, 1, 1] }));
   const bind = useGesture({
     onHover: ({ hovering }) =>
@@ -28,7 +30,12 @@ const Deck = ({ deckLength, drawCard, position }: DeckProps) => {
   });
 
   return (
-    <group name={"deck"} rotation={[Math.PI / 2, 0, 0]} position={position}>
+    <group
+      name={"deck"}
+      rotation={[Math.PI / 2, 0, 0]}
+      position={position}
+      scale={1.2}
+    >
       <animated.mesh
         visible={deckLength > 0}
         onClick={drawCard}

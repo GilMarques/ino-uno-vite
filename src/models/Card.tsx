@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
-import { cardProps } from "@/types/types";
 import { animated, useSpring } from "@react-spring/three";
 import { useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
@@ -17,17 +16,6 @@ const CARD_HEIGHT = 0.6;
 const CARD_DEPTH = 0.001;
 const CARD_RADIUS = 0.07;
 const CARD_SMOOTHNESS = 10;
-
-type CardProps = {
-  id: string;
-  name: string;
-  position: { x: number; y: number };
-  rotZ0: number;
-  setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
-  hoverCard: (id: string) => void;
-  playCard: (card: cardProps) => void;
-  removeFromHand: (id: string) => void;
-};
 
 const emissiveIntensity = {
   red: 1,
@@ -42,13 +30,12 @@ const Card = ({
   id,
   name,
   playCard,
-  removeFromHand,
   rotZ0,
   hoverCard,
   setIsDragging,
   bgColor,
   setColorChangerActive,
-}: CardProps) => {
+}) => {
   const color = name.split("/")[0];
   const ref = useRef<THREE.Group>();
   const ref2 = useRef<THREE.Group>();
@@ -93,7 +80,6 @@ const Card = ({
         if (name.split("/")[0] === "black") {
           setColorChangerActive(true);
         }
-        removeFromHand(id);
       }
       setOnTable(false);
       set({ position: [position.x / scaling, -position.y / scaling, z] });

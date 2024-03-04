@@ -21,6 +21,56 @@ const maxPlayers = 4;
 const seat = 0;
 const theta = (seat * (Math.PI * 2)) / maxPlayers;
 
+function createShiftedArray(arr, shift) {
+  const length = arr.length;
+  if (length === 0) {
+    return arr.slice(); // Return a shallow copy of the original array
+  }
+
+  // Normalize shift value to be within the range of the array length
+  shift %= length;
+
+  const shiftedIndices = arr.map((_, index) => {
+    let newIndex = index + shift;
+    if (newIndex < 0) {
+      newIndex += length; // Wrap around for negative indices
+    } else if (newIndex >= length) {
+      newIndex -= length; // Wrap around for indices beyond array length
+    }
+    return newIndex;
+  });
+
+  return shiftedIndices.map((index) => arr[index]);
+}
+
+function findUniqueElements(array1, array2) {
+  console.log("findUniqueElements", array1, array2);
+
+  const uniqueElements = [];
+
+  // Check for elements unique to array1
+  array1.forEach((tuple) => {
+    if (
+      !array2.some((t) => t.id === tuple.id) &&
+      !uniqueElements.some((obj) => obj.id === tuple.id)
+    ) {
+      uniqueElements.push({ id: tuple.id, name: tuple.name, fromArray: 1 });
+    }
+  });
+
+  // Check for elements unique to array2
+  array2.forEach((tuple) => {
+    if (
+      !array1.some((t) => t.id === tuple.id) &&
+      !uniqueElements.some((obj) => obj.id === tuple.id)
+    ) {
+      uniqueElements.push({ id: tuple.id, name: tuple.name, fromArray: 2 });
+    }
+  });
+
+  return uniqueElements;
+}
+
 export default function App({ updateSocket }) {
   const drawCard = useCallback(() => {
     updateSocket.emit("drawCard", seat);
@@ -82,6 +132,8 @@ export default function App({ updateSocket }) {
   const [serverData, setServerData] = useState([]);
   const [cards, setCards] = useState<cardProps[]>([]);
 
+  const [sortingActive, setSortingActive] = useState(false);
+
   const [cardStack, setCardStack] = useState<cardProps[]>([]);
 
   const [deckLength, setDeckLength] = useState<number>(60);
@@ -89,6 +141,7 @@ export default function App({ updateSocket }) {
   const [bgColor, setBgColor] = useState<string>("white");
   const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
+  //logs
   useEffect(() => {
     console.log("serverData", serverData);
     console.log("cardStack", cardStack);
@@ -97,12 +150,76 @@ export default function App({ updateSocket }) {
     console.log("rotationDirection", rotationDirection);
   }, [serverData, cardStack, deckLength, bgColor, rotationDirection]);
 
+  const sortCards = useCallback(() => {
+    setCards((prevData) => {
+      return [...prevData].sort((a, b) => {
+        // Extract color and value from the strings
+        const colorA = a.name?.split("/")[0];
+        const colorB = b.name?.split("/")[0];
+        let valueA = parseInt(a.name?.split("/")[1]);
+        let valueB = parseInt(b.name?.split("/")[1]);
+
+        // Handling special cards
+        if (isNaN(valueA)) {
+          if (a.name.includes("reverse")) valueA = 11;
+          else if (a.name.includes("block")) valueA = 12;
+          else if (a.name.includes("+2")) valueA = 10;
+        }
+
+        if (isNaN(valueB)) {
+          if (b.name.includes("reverse")) valueB = 11;
+          else if (b.name.includes("block")) valueB = 12;
+          else if (b.name.includes("+2")) valueB = 10;
+        }
+
+        // First, compare the colors alphabetically
+        if (colorA < colorB) return -1;
+        if (colorA > colorB) return 1;
+
+        // If colors are the same, compare values numerically
+        return valueA - valueB;
+      });
+    });
+  }, []);
+
+  const handleShift = useCallback((x) => {
+    setCards((prev) => createShiftedArray(prev, x));
+  }, []);
+
+  useEffect(() => {
+    console.log("sortingActive", sortingActive);
+  }, [sortingActive]);
+
+  const handleSetCards = useCallback((prev, serverCards) => {
+    const uniqueElements = findUniqueElements(prev, serverCards);
+    console.log("unique", uniqueElements);
+    console.log("before", prev);
+
+    let newCards = [];
+    //from array1 remove
+    //from array2 add
+    uniqueElements.forEach((element) => {
+      if (element.fromArray === 1) {
+        prev = prev.filter((card) => card.id !== element.id);
+      }
+
+      if (element.fromArray === 2) {
+        prev.push(element);
+      }
+    });
+    console.log("after", prev);
+
+    return [...prev];
+  }, []);
+
+  //update user cards
   useEffect(() => {
     if (serverData[seat]?.cards.length > 0) {
-      setCards(serverData[seat].cards);
+      setCards((prev) => handleSetCards(prev, serverData[seat]?.cards));
     }
   }, [serverData]);
 
+  //SOCKET IO EVENTS
   useEffect(() => {
     updateSocket.connect();
     return () => updateSocket.disconnect();
@@ -213,12 +330,14 @@ export default function App({ updateSocket }) {
           <Hand
             rotation={[0, theta, 0]}
             cards={cards}
+            handleShift={handleShift}
             setCards={setCards}
             hoverCard={hoverCard}
             setIsDragging={setIsDragging}
             isDragging={isDragging}
             playCard={playCard}
             bgColor={bgColor}
+            sortCards={sortCards}
             setColorChangerActive={setColorChangerActive}
           />
 

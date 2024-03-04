@@ -1,23 +1,43 @@
 import { cardProps } from "@/types/Card";
-
+import { animated, useTransition } from "react-spring";
 type StackUIProps = {
   cardStack: cardProps[];
   removeCard: (card: cardProps) => void;
 };
 
+// .toReversed()
+//           .slice(0, 5)
 const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
-  return (
-    <div className="absolute right-10 top-10 border-2 border-black bg-white">
-      <div className="w-32 flex-col border-2 border-black">
-        <h1 className="text-center">Cards</h1>
+  // console.log("stackUI", reversedStack);
+  const reversedStack = cardStack.slice().reverse().slice(0, 5);
+  const transCards = useTransition(reversedStack, {
+    keys: (card) => card.id,
+    from: { opacity: 0, maxHeight: "0px" },
+    enter: { opacity: 1, transform: "translateX(0px)", maxHeight: "80px" },
+    leave: {
+      opacity: 0,
+      transform: "translateX(-100px)",
+      maxHeight: "0px",
+    },
 
-        {cardStack
-          .toReversed()
-          .slice(0, 5)
-          .map((card) => (
-            <div
-              key={card.id}
+    config: {
+      duration: 400,
+    },
+  });
+
+  return (
+    // <animated.div className="rounded-xl border-2 border-black bg-white">
+    <div className="absolute right-10 top-10 max-h-[500px] w-32 select-none flex-col rounded-2xl bg-white bg-opacity-80 text-xl">
+      <div>
+        <h1 className="arvo-bold text-center font-bold">Cards</h1>
+
+        {transCards((style, card) => {
+          return (
+            <animated.div
+              // key={card.id}
+              //
               className="my-5 flex items-center justify-center"
+              style={style}
             >
               <img
                 className="rounded-[8px] border-2 border-black"
@@ -27,10 +47,12 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
                 alt={`${card.name}`}
                 onClick={() => removeCard(card)}
               />
-            </div>
-          ))}
+            </animated.div>
+          );
+        })}
       </div>
     </div>
+    // </animated.div>
   );
 };
 

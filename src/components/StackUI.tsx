@@ -34,8 +34,6 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
         {transCards((style, card) => {
           return (
             <animated.div
-              // key={card.id}
-              //
               className="my-5 flex items-center justify-center"
               style={style}
             >
@@ -43,7 +41,7 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
                 className="rounded-[8px] border-2 border-black"
                 src={`/src/assets/cards/${card.name}.png`}
                 width={50}
-                height={100}
+                height={50}
                 alt={`${card.name}`}
                 onClick={() => removeCard(card)}
               />

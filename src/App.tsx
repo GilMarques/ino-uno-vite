@@ -1,5 +1,6 @@
 "use client";
 
+import Seats from "@/components/Seats";
 import { cardProps } from "@/types/types";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
@@ -186,10 +187,6 @@ export default function App({ updateSocket }) {
     setCards((prev) => createShiftedArray(prev, x));
   }, []);
 
-  useEffect(() => {
-    console.log("sortingActive", sortingActive);
-  }, [sortingActive]);
-
   const handleSetCards = useCallback((prev, serverCards) => {
     const uniqueElements = findUniqueElements(prev, serverCards);
     console.log("unique", uniqueElements);
@@ -314,6 +311,7 @@ export default function App({ updateSocket }) {
         }}
       >
         {/* <MainMenu /> */}
+
         <Suspense fallback={<Loader />}>
           <axesHelper args={[10, 10, 10]} />
           <ambientLight intensity={1} color={"white"} />
@@ -344,6 +342,7 @@ export default function App({ updateSocket }) {
           <Background bgColor={bgColor} />
           <TableRotation rotationDirection={rotationDirection} />
           {/* <Stool position={[0, 0, -1]} scale={5} /> */}
+          {/* {spectating && <OrbitControls/>} */}
           <OrbitControls
             ref={orbitRef}
             enabled={!isDragging}
@@ -375,6 +374,7 @@ export default function App({ updateSocket }) {
           />
         </Suspense>
       </Canvas>
+      <Seats sides={maxPlayers} takenSeats={[0, 2]} spectators={3} />
       <StackUI cardStack={cardStack} removeCard={removeCard} />
     </div>
   );

@@ -38,10 +38,10 @@ serverColor = color;
 serverDeck = serverDeck.filter((card) => card.id !== firstCard.id);
 
 let serverStack = [firstCard];
-let maxSeats = 4;
+let maxSeats = 6;
 let serverData = [];
 for (let i = 0; i < maxSeats; i++) {
-  serverData.push({ seat: i, cards: [] });
+  serverData.push({ seat: i, cards: null });
 }
 
 let serverRotation = false;
@@ -82,16 +82,35 @@ updateNameSpace.on("connection", (socket) => {
     });
   });
 
-  socket.on("join", (seat) => {
-    if (serverData[seat].cards.length === 0) {
+  socket.on("takeSeat", (seat) => {
+    console.log("take", seat);
+    if (serverData[seat].cards === null) {
       const startingHand = serverDeck.splice(0, 7);
       serverData[seat] = {
         seat,
         cards: startingHand,
       };
     }
+    updateNameSpace.emit("seatTaken", {
+      seat,
+      serverData,
+      serverStack,
+      deckLength: serverDeck.length,
+      serverColor,
+      serverRotation,
+    });
+  });
 
-    updateNameSpace.emit("playerJoined", {
+  socket.on("join", (seat) => {
+    // if (serverData[seat].cards === null) {
+    //   const startingHand = serverDeck.splice(0, 7);
+    //   serverData[seat] = {
+    //     seat,
+    //     cards: startingHand,
+    //   };
+    // }
+
+    updateNameSpace.emit("joined", {
       serverData,
       serverStack,
       deckLength: serverDeck.length,
@@ -152,13 +171,13 @@ updateNameSpace.on("connection", (socket) => {
   });
 });
 
-// const interval = setInterval(() => {
-//   console.log("Rotation", serverRotation);
-//   console.log("Color", serverColor);
-//   console.log("deck length", serverDeck.length);
-//   console.log("serverData", serverData);
-//   console.log("ServerStack", serverStack);
-// }, 5000);
+const interval = setInterval(() => {
+  console.log("Rotation", serverRotation);
+  console.log("Color", serverColor);
+  console.log("deck length", serverDeck.length);
+  console.log("serverData", serverData);
+  console.log("ServerStack", serverStack);
+}, 5000);
 
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);

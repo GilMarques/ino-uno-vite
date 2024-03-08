@@ -2,22 +2,24 @@
 
 import Seats from "@/components/Seats";
 import { cardProps } from "@/types/types";
-import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Loader from "./components/Loader";
 import StackUI from "./components/StackUI";
 import Background from "./models/Background";
+import CameraController from "./models/CameraController";
 import ColorChanger from "./models/ColorChanger";
 import Deck from "./models/Deck";
 import Hand from "./models/Hand";
 import OtherHand from "./models/OtherHand";
+import SpectateText from "./models/SpectateText";
 import Stack from "./models/Stack";
 import TableRotation from "./models/TableRotation";
 import VictorianTable from "./models/VictorianTable";
-
 //Player Settings
 // const seat = Math.floor(Math.random() * maxPlayers);
+
+/* ------------------------------ Aux Functions ----------------------------- */
 
 function createShiftedArray(arr, shift) {
   const length = arr.length;
@@ -42,8 +44,6 @@ function createShiftedArray(arr, shift) {
 }
 
 function findUniqueElements(array1, array2) {
-  console.log("findUniqueElements", array1, array2);
-
   const uniqueElements = [];
 
   // Check for elements unique to array1
@@ -69,7 +69,36 @@ function findUniqueElements(array1, array2) {
   return uniqueElements;
 }
 
+//end section
 export default function App({ updateSocket }) {
+  /* --------------------------------- States --------------------------------- */
+
+  const [playing, setPlaying] = useState(false);
+
+  const [seat, setSeat] = useState(0);
+
+  const [theta, setTheta] = useState(0);
+
+  const [maxPlayers, setMaxPlayers] = useState(4);
+
+  const [spectators, setSpectators] = useState(0);
+
+  const [colorChangerActive, setColorChangerActive] = useState(false);
+
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const [serverData, setServerData] = useState([]);
+  const [cards, setCards] = useState<cardProps[]>([]);
+  const [seatsTaken, setSeatsTaken] = useState([]);
+
+  const [cardStack, setCardStack] = useState<cardProps[]>([]);
+
+  const [deckLength, setDeckLength] = useState<number>(60);
+
+  const [bgColor, setBgColor] = useState<string>("white");
+  const [rotationDirection, setRotationDirection] = useState<boolean>(true);
+
+  /* -------------------------------- Callbacks ------------------------------- */
   const drawCard = useCallback(() => {
     updateSocket.emit("drawCard", seat);
   }, [updateSocket]);
@@ -123,52 +152,12 @@ export default function App({ updateSocket }) {
 
   const takeSeat = useCallback(
     (seat) => {
+      if (playing) return;
       console.log("takeSeat", seat);
       updateSocket.emit("takeSeat", seat);
     },
-    [updateSocket]
+    [updateSocket, playing]
   );
-
-  const orbitRef = useRef();
-
-  //Frontend
-  const [playing, setPlaying] = useState(false);
-
-  const [seat, setSeat] = useState(0);
-
-  const [theta, setTheta] = useState(0);
-
-  const [maxPlayers, setMaxPlayers] = useState(4);
-
-  useEffect(() => {
-    setTheta((seat * (Math.PI * 2)) / maxPlayers);
-  }, [seat]);
-
-  const [colorChangerActive, setColorChangerActive] = useState(false);
-
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-
-  const [serverData, setServerData] = useState([]);
-  const [cards, setCards] = useState<cardProps[]>([]);
-  const [seatsTaken, setSeatsTaken] = useState([]);
-
-  const [sortingActive, setSortingActive] = useState(false);
-
-  const [cardStack, setCardStack] = useState<cardProps[]>([]);
-
-  const [deckLength, setDeckLength] = useState<number>(60);
-
-  const [bgColor, setBgColor] = useState<string>("white");
-  const [rotationDirection, setRotationDirection] = useState<boolean>(true);
-
-  //logs
-  useEffect(() => {
-    console.log("serverData", serverData);
-    console.log("cardStack", cardStack);
-    console.log("deckLength", deckLength);
-    console.log("bgColor", bgColor);
-    console.log("rotationDirection", rotationDirection);
-  }, [serverData, cardStack, deckLength, bgColor, rotationDirection]);
 
   const sortCards = useCallback(() => {
     setCards((prevData) => {
@@ -208,10 +197,7 @@ export default function App({ updateSocket }) {
 
   const handleSetCards = useCallback((prev, serverCards) => {
     const uniqueElements = findUniqueElements(prev, serverCards);
-    console.log("unique", uniqueElements);
-    console.log("before", prev);
 
-    let newCards = [];
     //from array1 remove
     //from array2 add
     uniqueElements.forEach((element) => {
@@ -223,10 +209,30 @@ export default function App({ updateSocket }) {
         prev.push(element);
       }
     });
-    console.log("after", prev);
 
     return [...prev];
   }, []);
+
+  const handleLeave = useCallback(() => {
+    console.log("leave");
+    setPlaying(false);
+    updateSocket.emit("leave", seat);
+  }, [updateSocket]);
+
+  //logs
+  /* --------------------------------- Effects -------------------------------- */
+
+  useEffect(() => {
+    setTheta((seat * (Math.PI * 2)) / maxPlayers);
+  }, [seat]);
+
+  useEffect(() => {
+    console.log("serverData", serverData);
+    console.log("cardStack", cardStack);
+    console.log("deckLength", deckLength);
+    console.log("bgColor", bgColor);
+    console.log("rotationDirection", rotationDirection);
+  }, [serverData, cardStack, deckLength, bgColor, rotationDirection]);
 
   //update user cards
   useEffect(() => {
@@ -244,7 +250,7 @@ export default function App({ updateSocket }) {
     );
   }, [serverData]);
 
-  //SOCKET IO EVENTS
+  /* ------------------------------ Socket Events ----------------------------- */
   useEffect(() => {
     updateSocket.connect();
     return () => updateSocket.disconnect();
@@ -259,6 +265,7 @@ export default function App({ updateSocket }) {
       deckLength,
       serverColor,
       serverRotation,
+      spectators,
     }) {
       console.log("joined");
       setMaxPlayers(serverData.length);
@@ -267,6 +274,7 @@ export default function App({ updateSocket }) {
       setDeckLength(deckLength);
       setBgColor(serverColor);
       setRotationDirection(serverRotation);
+      setSpectators(spectators);
     }
 
     function onCardDrawn({ serverData, serverStack, deckLength }) {
@@ -320,6 +328,8 @@ export default function App({ updateSocket }) {
       serverColor,
       serverRotation,
     }) {
+      console.log(seat);
+
       setPlaying(true);
       setSeat(seat);
       setTheta((seat * (Math.PI * 2)) / maxPlayers);
@@ -330,6 +340,10 @@ export default function App({ updateSocket }) {
       setRotationDirection(serverRotation);
     }
 
+    function onLeft({ serverData }) {
+      setServerData(serverData);
+    }
+
     updateSocket.on("joined", onJoined);
     updateSocket.on("seatTaken", onSeatTaken);
     updateSocket.on("removedFromStack", onRemovedFromStack);
@@ -337,6 +351,7 @@ export default function App({ updateSocket }) {
     updateSocket.on("playedCard", onPlayedCard);
     updateSocket.on("shuffled", onShuffled);
     updateSocket.on("changedColor", onChangedColor);
+    updateSocket.on("left", onLeft);
     return () => {
       updateSocket.off("joined", onJoined);
       updateSocket.off("addCard", onCardDrawn);
@@ -344,9 +359,11 @@ export default function App({ updateSocket }) {
       updateSocket.off("shuffle", onShuffled);
       updateSocket.off("removedFromStack", onRemovedFromStack);
       updateSocket.off("seatTaken", onSeatTaken);
+      updateSocket.off("left", onLeft);
     };
   }, []);
 
+  /* ------------------------------- Render ------------------------------- */
   return (
     <div className="relative h-screen w-full">
       <Canvas
@@ -355,14 +372,16 @@ export default function App({ updateSocket }) {
           fov: 75,
           near: 0.1,
           far: 1000,
-          position: [4 * Math.sin(theta), 7, 4 * Math.cos(theta)],
+          // position: [4 * Math.sin(theta), 7, 4 * Math.cos(theta)],
         }}
       >
         {/* <MainMenu /> */}
 
         <Suspense fallback={<Loader />}>
-          <axesHelper args={[10, 10, 10]} />
+          {/* <axesHelper args={[10, 10, 10]} /> */}
           <ambientLight intensity={1} color={"white"} />
+          {!playing && <SpectateText />}
+
           <VictorianTable position={[0, -3.6, 0]} />
           <Stack cardStack={cardStack} position={[0, -0.0, 0]} />
           <Deck
@@ -389,29 +408,13 @@ export default function App({ updateSocket }) {
           <Background bgColor={bgColor} />
           <TableRotation rotationDirection={rotationDirection} />
           {/* <Stool position={[0, 0, -1]} scale={5} /> */}
-          {/* {spectating && <OrbitControls/>} */}
-          {playing && (
-            <OrbitControls
-              ref={orbitRef}
-              enabled={!isDragging}
-              enableZoom={false}
-              enablePan={false}
-              rotateSpeed={0.1}
-              dampingFactor={0.03}
-              minAzimuthAngle={theta - Math.PI / 6}
-              maxAzimuthAngle={theta + Math.PI / 6}
-              maxPolarAngle={Math.PI / 3}
-              minPolarAngle={Math.PI / 6}
-            />
-          )}
-          {!playing && (
-            <OrbitControls
-              ref={orbitRef}
-              enabled={!isDragging}
-              rotateSpeed={0.1}
-              dampingFactor={0.03}
-            />
-          )}
+
+          <CameraController
+            isDragging={isDragging}
+            theta={theta}
+            playing={playing}
+          />
+
           {serverData.map(
             (player) =>
               player.seat !== seat &&
@@ -433,8 +436,9 @@ export default function App({ updateSocket }) {
       <Seats
         sides={maxPlayers}
         takenSeats={seatsTaken}
-        spectators={3}
+        spectators={spectators}
         takeSeat={takeSeat}
+        handleLeave={handleLeave}
       />
       <StackUI cardStack={cardStack} removeCard={removeCard} />
     </div>

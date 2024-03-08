@@ -75,7 +75,7 @@ const OtherCard = ({ position, id, name, rotZ0 }: OtherCardProps) => {
         >
           <meshStandardMaterial
             attach="material-0"
-            map={textureMap[name]}
+            // map={textureMap[name]}
             side={THREE.DoubleSide}
           />
           <meshStandardMaterial

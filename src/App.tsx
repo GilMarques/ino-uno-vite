@@ -12,6 +12,7 @@ import ColorChanger from "./models/ColorChanger";
 import Deck from "./models/Deck";
 import Hand from "./models/Hand";
 import OtherHand from "./models/OtherHand";
+import Particles from "./models/Particles";
 import SpectateText from "./models/SpectateText";
 import Stack from "./models/Stack";
 import TableRotation from "./models/TableRotation";
@@ -75,7 +76,7 @@ export default function App({ updateSocket }) {
 
   const [playing, setPlaying] = useState(false);
 
-  const [seat, setSeat] = useState(0);
+  const [seat, setSeat] = useState(-1);
 
   const [theta, setTheta] = useState(0);
 
@@ -98,6 +99,8 @@ export default function App({ updateSocket }) {
   const [bgColor, setBgColor] = useState<string>("white");
   const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
+  const [particleEffectsActive, setParticleEffectsActive] = useState(false);
+
   /* -------------------------------- Callbacks ------------------------------- */
   const drawCard = useCallback(() => {
     updateSocket.emit("drawCard", seat);
@@ -105,13 +108,13 @@ export default function App({ updateSocket }) {
 
   const playCard = useCallback(
     (card) => {
-      console.log("playCard");
+      console.log("playCard", seat);
       updateSocket.emit("playCard", {
         seat,
         card,
       });
     },
-    [updateSocket]
+    [updateSocket, seat]
   );
 
   const hoverCard = useCallback(
@@ -133,7 +136,7 @@ export default function App({ updateSocket }) {
         card,
       });
     },
-    [updateSocket]
+    [updateSocket, seat]
   );
 
   const changeBgColor = useCallback(
@@ -217,7 +220,7 @@ export default function App({ updateSocket }) {
     console.log("leave");
     setPlaying(false);
     updateSocket.emit("leave", seat);
-  }, [updateSocket]);
+  }, [updateSocket, seat]);
 
   //logs
   /* --------------------------------- Effects -------------------------------- */
@@ -314,6 +317,7 @@ export default function App({ updateSocket }) {
       setCardStack(serverStack);
       setRotationDirection(serverRotation);
       setBgColor(serverColor);
+      setParticleEffectsActive(true);
     }
 
     function onChangedColor(color) {
@@ -384,6 +388,11 @@ export default function App({ updateSocket }) {
 
           <VictorianTable position={[0, -3.6, 0]} />
           <Stack cardStack={cardStack} position={[0, -0.0, 0]} />
+
+          {particleEffectsActive && (
+            <Particles color={bgColor} setActive={setParticleEffectsActive} />
+          )}
+
           <Deck
             deckLength={deckLength}
             shuffleDeck={shuffleDeck}

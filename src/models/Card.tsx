@@ -40,7 +40,7 @@ const Card = ({
   const ref = useRef<THREE.Group>();
   const ref2 = useRef<THREE.Group>();
   const scaling = 200;
-  const z = 0.01;
+  const z = 0.1;
   const [cardPos, setCardPos] = useState(position);
 
   const [onTable, setOnTable] = useState(false);

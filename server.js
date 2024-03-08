@@ -128,6 +128,7 @@ updateNameSpace.on("connection", (socket) => {
     if (cardValue === "reverse") {
       serverRotation = !serverRotation;
     }
+    console.log(seat, card);
     serverData[seat].cards = serverData[seat].cards.filter(
       (c) => c.id !== card.id
     );

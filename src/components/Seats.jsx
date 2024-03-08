@@ -72,7 +72,7 @@ const Seats = ({ sides, takenSeats, spectators, takeSeat, handleLeave }) => {
         <div className="absolute bottom-3 left-4 flex items-center justify-center gap-x-1 font-bold text-white">
           <VisibilityIcon /> {`${spectators}`}
         </div>
-        <div className="absolute left-3 top-3 flex items-center justify-center gap-x-1 font-bold text-white">
+        <div className="absolute left-3 top-3">
           <IconButton onClick={handleLeave}>
             <LogoutIcon />
           </IconButton>

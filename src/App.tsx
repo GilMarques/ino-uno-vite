@@ -2,6 +2,7 @@
 
 import Seats from "@/components/Seats";
 import { cardProps } from "@/types/types";
+import { CameraShake } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Loader from "./components/Loader";
@@ -391,6 +392,20 @@ export default function App({ updateSocket }) {
 
           {particleEffectsActive && (
             <Particles color={bgColor} setActive={setParticleEffectsActive} />
+          )}
+
+          {particleEffectsActive && (
+            <CameraShake
+              maxPitch={0.07}
+              maxRoll={0.07}
+              maxYaw={0.07}
+              yawFrequency={3}
+              pitchFrequency={3}
+              rollFrequency={3}
+              decay={true}
+              decayRate={0.65}
+              intensity={0.6}
+            />
           )}
 
           <Deck

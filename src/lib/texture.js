@@ -1,4 +1,3 @@
-"use client";
 import { SRGBColorSpace } from "three";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 

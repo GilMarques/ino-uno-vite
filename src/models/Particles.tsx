@@ -49,7 +49,7 @@ const Particles = ({ color, setActive }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setActive(false);
-    }, 1000);
+    }, 750);
     return () => clearInterval(interval);
   }, []);
 

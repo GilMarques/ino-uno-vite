@@ -1,4 +1,3 @@
-"use client";
 import textureMap from "@/lib/texture";
 import * as THREE from "three";
 import deck from "../../startingDeck";

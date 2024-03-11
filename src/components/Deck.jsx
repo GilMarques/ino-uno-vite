@@ -1,6 +1,5 @@
-"use client";
 import Image from "next/image";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 function shuffleDeck(deck) {
   for (let i = deck.length - 1; i > 0; i--) {

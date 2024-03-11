@@ -1,5 +1,3 @@
-// boxGeometry for different card faces
-"use client";
 import textureMap from "@/lib/texture";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";

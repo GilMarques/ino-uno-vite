@@ -1,10 +1,7 @@
-"use client";
-
 import Seats from "@/components/Seats";
 import { cardProps } from "@/types/types";
-import { CameraShake } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Loader from "./components/Loader";
 import StackUI from "./components/StackUI";
 import Background from "./models/Background";
@@ -18,6 +15,7 @@ import SpectateText from "./models/SpectateText";
 import Stack from "./models/Stack";
 import TableRotation from "./models/TableRotation";
 import VictorianTable from "./models/VictorianTable";
+
 //Player Settings
 // const seat = Math.floor(Math.random() * maxPlayers);
 
@@ -101,6 +99,8 @@ export default function App({ updateSocket }) {
   const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
   const [particleEffectsActive, setParticleEffectsActive] = useState(false);
+
+  const controlsRef = useRef();
 
   /* -------------------------------- Callbacks ------------------------------- */
   const drawCard = useCallback(() => {
@@ -231,16 +231,16 @@ export default function App({ updateSocket }) {
   }, [seat]);
 
   useEffect(() => {
-    console.log("serverData", serverData);
-    console.log("cardStack", cardStack);
-    console.log("deckLength", deckLength);
-    console.log("bgColor", bgColor);
-    console.log("rotationDirection", rotationDirection);
+    // console.log("serverData", serverData);
+    // console.log("cardStack", cardStack);
+    // console.log("deckLength", deckLength);
+    // console.log("bgColor", bgColor);
+    // console.log("rotationDirection", rotationDirection);
   }, [serverData, cardStack, deckLength, bgColor, rotationDirection]);
 
   //update user cards
   useEffect(() => {
-    if (playing && serverData[seat]?.cards.length > 0) {
+    if (playing) {
       setCards((prev) => handleSetCards(prev, serverData[seat]?.cards));
     }
 
@@ -384,6 +384,14 @@ export default function App({ updateSocket }) {
 
         <Suspense fallback={<Loader />}>
           {/* <axesHelper args={[10, 10, 10]} /> */}
+
+          <CameraController
+            isDragging={isDragging}
+            theta={theta}
+            playing={playing}
+            particleEffectsActive={particleEffectsActive}
+          />
+
           <ambientLight intensity={1} color={"white"} />
           {!playing && <SpectateText />}
 
@@ -392,20 +400,6 @@ export default function App({ updateSocket }) {
 
           {particleEffectsActive && (
             <Particles color={bgColor} setActive={setParticleEffectsActive} />
-          )}
-
-          {particleEffectsActive && (
-            <CameraShake
-              maxPitch={0.07}
-              maxRoll={0.07}
-              maxYaw={0.07}
-              yawFrequency={3}
-              pitchFrequency={3}
-              rollFrequency={3}
-              decay={true}
-              decayRate={0.65}
-              intensity={0.6}
-            />
           )}
 
           <Deck
@@ -432,12 +426,6 @@ export default function App({ updateSocket }) {
           <Background bgColor={bgColor} />
           <TableRotation rotationDirection={rotationDirection} />
           {/* <Stool position={[0, 0, -1]} scale={5} /> */}
-
-          <CameraController
-            isDragging={isDragging}
-            theta={theta}
-            playing={playing}
-          />
 
           {serverData.map(
             (player) =>

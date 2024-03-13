@@ -116,6 +116,12 @@ const Card = ({
         onClick={(event) => {
           event.stopPropagation();
         }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+        }}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+        }}
         //   onPointerEnter={() => setShiny(true)}
         // onPointerLeave={() => setShiny(false)}
         {...spring}

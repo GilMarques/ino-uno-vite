@@ -19,8 +19,6 @@ type DeckProps = {
 };
 
 const Deck = ({ deckLength, drawCard, position }: DeckProps) => {
-  let mouseTimer;
-
   const [spring, set] = useSpring(() => ({ scale: [1, 1, 1] }));
   const bind = useGesture({
     onHover: ({ hovering }) =>

@@ -1,26 +1,17 @@
-import { Billboard, Center, Hud, Text3D } from "@react-three/drei";
-import { useRef } from "react";
+import { Billboard, Center, Float, Hud, Text3D } from "@react-three/drei";
 
 const SpectateText = () => {
-  const ref = useRef();
-
   return (
     <Hud>
       <Billboard>
-        <Center position={[0, 3, 0]}>
-          <Text3D font={"./Inter_Bold.json"} height={0.1} ref={ref}>
-            Spectating
-            <meshBasicMaterial
-              attach={"material-0"}
-              color={"white"}
-              opacity={0}
-            />
-            <meshBasicMaterial
-              attach={"material-1"}
-              color={"black"}
-              transparent={true}
-            />
-          </Text3D>
+        <Center position={[0, -3, 0]}>
+          <Float speed={30} rotationIntensity={0} floatIntensity={0.5}>
+            <Text3D font={"./Inter_Bold.json"} height={0.1}>
+              Spectating
+              <meshBasicMaterial attach={"material-0"} color={"white"} />
+              <meshBasicMaterial attach={"material-1"} color={"black"} />
+            </Text3D>
+          </Float>
         </Center>
       </Billboard>
     </Hud>

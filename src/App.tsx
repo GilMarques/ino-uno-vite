@@ -104,18 +104,16 @@ export default function App({ updateSocket }) {
 
   /* -------------------------------- Callbacks ------------------------------- */
   const drawCard = useCallback(() => {
-    updateSocket.emit("drawCard", seat);
+    updateSocket.emit("drawCard");
   }, [updateSocket]);
 
   const playCard = useCallback(
     (card) => {
-      console.log("playCard", seat);
       updateSocket.emit("playCard", {
-        seat,
         card,
       });
     },
-    [updateSocket, seat]
+    [updateSocket]
   );
 
   const hoverCard = useCallback(
@@ -133,11 +131,10 @@ export default function App({ updateSocket }) {
     (card) => {
       console.log("stackRemove");
       updateSocket.emit("stackRemove", {
-        seat,
         card,
       });
     },
-    [updateSocket, seat]
+    [updateSocket]
   );
 
   const changeBgColor = useCallback(
@@ -219,9 +216,9 @@ export default function App({ updateSocket }) {
 
   const handleLeave = useCallback(() => {
     console.log("leave");
-    setPlaying(false);
-    updateSocket.emit("leave", seat);
-  }, [updateSocket, seat]);
+
+    updateSocket.emit("leave");
+  }, [updateSocket]);
 
   //logs
   /* --------------------------------- Effects -------------------------------- */
@@ -231,12 +228,22 @@ export default function App({ updateSocket }) {
   }, [seat]);
 
   useEffect(() => {
-    // console.log("serverData", serverData);
+    console.log("NEW DATA");
+    console.log("serverData", serverData);
+    console.log("spectators", spectators);
+    console.log("deckLength", deckLength);
     // console.log("cardStack", cardStack);
-    // console.log("deckLength", deckLength);
+
     // console.log("bgColor", bgColor);
     // console.log("rotationDirection", rotationDirection);
-  }, [serverData, cardStack, deckLength, bgColor, rotationDirection]);
+  }, [
+    serverData,
+    spectators,
+    cardStack,
+    deckLength,
+    bgColor,
+    rotationDirection,
+  ]);
 
   //update user cards
   useEffect(() => {
@@ -332,8 +339,9 @@ export default function App({ updateSocket }) {
       deckLength,
       serverColor,
       serverRotation,
+      spectators,
     }) {
-      console.log(seat);
+      // console.log("seatTaken", seat);
 
       setPlaying(true);
       setSeat(seat);
@@ -343,10 +351,35 @@ export default function App({ updateSocket }) {
       setBgColor(serverColor);
       setDeckLength(deckLength);
       setRotationDirection(serverRotation);
+      setSpectators(spectators);
     }
 
-    function onLeft({ serverData }) {
+    function onLeft({ serverData, spectators }) {
+      setPlaying(false);
+      setSeat(-1);
       setServerData(serverData);
+      setSpectators(spectators);
+    }
+
+    function onSpectators({ spectators }) {
+      setSpectators(spectators);
+    }
+
+    function onUpdate({
+      serverData,
+      serverStack,
+      deckLength,
+      serverColor,
+      serverRotation,
+      spectators,
+    }) {
+      setServerData(serverData);
+      setCardStack(serverStack);
+      setDeckLength(deckLength);
+      setBgColor(serverColor);
+      setRotationDirection(serverRotation);
+      setRotationDirection(serverRotation);
+      setSpectators(spectators);
     }
 
     updateSocket.on("joined", onJoined);
@@ -357,6 +390,8 @@ export default function App({ updateSocket }) {
     updateSocket.on("shuffled", onShuffled);
     updateSocket.on("changedColor", onChangedColor);
     updateSocket.on("left", onLeft);
+    updateSocket.on("spectators", onSpectators);
+    updateSocket.on("update", onUpdate);
     return () => {
       updateSocket.off("joined", onJoined);
       updateSocket.off("addCard", onCardDrawn);
@@ -365,6 +400,8 @@ export default function App({ updateSocket }) {
       updateSocket.off("removedFromStack", onRemovedFromStack);
       updateSocket.off("seatTaken", onSeatTaken);
       updateSocket.off("left", onLeft);
+      updateSocket.off("spectators", onSpectators);
+      updateSocket.off("update", onUpdate);
     };
   }, []);
 

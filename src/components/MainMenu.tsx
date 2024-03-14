@@ -13,8 +13,6 @@ const MainMenu = ({ updateSocket, setConnected }) => {
   const handleClick = () => {
     setActive(true);
 
-    updateSocket.connect();
-
     const timeout = setTimeout(() => {
       setConnected(true);
     }, 1000);

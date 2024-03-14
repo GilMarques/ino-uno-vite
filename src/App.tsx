@@ -62,6 +62,7 @@ export default function App({ updateSocket }) {
   const [connected, setConnected] = useState(false);
   /* ------------------------------ Socket Events ----------------------------- */
   useEffect(() => {
+    updateSocket.connect();
     return () => updateSocket.disconnect();
   }, []);
 

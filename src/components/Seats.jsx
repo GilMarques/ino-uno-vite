@@ -48,7 +48,10 @@ const Seats = ({ sides, takenSeats, spectators, takeSeat, handleLeave }) => {
           cursor: takenSeats.includes(i) ? "no-drop" : "pointer",
           transform: `rotate(${angle * i}deg) translate(0%, -${r}%)`,
         }}
-        onClick={() => takeSeat(i)}
+        onClick={() => {
+          console.log("clicked");
+          takeSeat(i);
+        }}
       ></div>
     );
   }

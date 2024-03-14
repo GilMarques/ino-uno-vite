@@ -11,7 +11,7 @@ const HudElements = ({
   spectators,
 }) => {
   return (
-    <Hud renderPriority={3}>
+    <Hud>
       <Html fullscreen={true}>
         <Seats
           sides={maxPlayers}

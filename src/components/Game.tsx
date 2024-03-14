@@ -11,7 +11,7 @@ import Stack from "@/models/Stack";
 import TableRotation from "@/models/TableRotation";
 import VictorianTable from "@/models/VictorianTable";
 import { cardProps } from "@/types/types";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 function createShiftedArray(arr, shift) {
   const length = arr.length;
@@ -87,10 +87,6 @@ const Game = ({ updateSocket }) => {
   const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
   const [particleEffectsActive, setParticleEffectsActive] = useState(false);
-
-  const [fadeActive, setFadeActive] = useState(false);
-  const [renderFade, setRenderFade] = useState(true);
-  const controlsRef = useRef();
 
   /* -------------------------------- Callbacks ------------------------------- */
   const drawCard = useCallback(() => {
@@ -360,7 +356,7 @@ const Game = ({ updateSocket }) => {
   }, []);
 
   return (
-    <Suspense fallback={null}>
+    <>
       {/* <axesHelper args={[10, 10, 10]} /> */}
 
       <CameraController
@@ -431,7 +427,7 @@ const Game = ({ updateSocket }) => {
         removeCard={removeCard}
         spectators={spectators}
       />
-    </Suspense>
+    </>
   );
 };
 

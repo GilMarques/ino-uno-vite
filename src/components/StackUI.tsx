@@ -27,6 +27,7 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
 
   return (
     // <animated.div className="rounded-xl border-2 border-black bg-white">
+
     <div className="absolute right-10 top-10 max-h-[500px] w-32 select-none flex-col rounded-2xl bg-white bg-opacity-80 text-xl">
       <div>
         <h1 className="text-center font-bold">Stack</h1>
@@ -50,7 +51,6 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
         })}
       </div>
     </div>
-    // </animated.div>
   );
 };
 

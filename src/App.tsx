@@ -1,14 +1,14 @@
-import Seats from "@/components/Seats";
 import { cardProps } from "@/types/types";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Loader from "./components/Loader";
-import StackUI from "./components/StackUI";
 import Background from "./models/Background";
 import CameraController from "./models/CameraController";
 import ColorChanger from "./models/ColorChanger";
 import Deck from "./models/Deck";
+import Fade from "./models/Fade";
 import Hand from "./models/Hand";
+import HudElements from "./models/HudElements";
 import OtherHand from "./models/OtherHand";
 import Particles from "./models/Particles";
 import SpectateText from "./models/SpectateText";
@@ -129,7 +129,7 @@ export default function App({ updateSocket }) {
 
   const removeCard = useCallback(
     (card) => {
-      console.log("stackRemove");
+      console.log("stackRemove", card);
       updateSocket.emit("stackRemove", {
         card,
       });
@@ -224,7 +224,9 @@ export default function App({ updateSocket }) {
   /* --------------------------------- Effects -------------------------------- */
 
   useEffect(() => {
-    setTheta((seat * (Math.PI * 2)) / maxPlayers);
+    if (seat !== -1) {
+      setTheta((seat * (Math.PI * 2)) / maxPlayers);
+    }
   }, [seat]);
 
   useEffect(() => {
@@ -237,6 +239,7 @@ export default function App({ updateSocket }) {
     // console.log("bgColor", bgColor);
     // console.log("rotationDirection", rotationDirection);
   }, [
+    theta,
     serverData,
     spectators,
     cardStack,
@@ -414,14 +417,11 @@ export default function App({ updateSocket }) {
           fov: 75,
           near: 0.1,
           far: 1000,
-          // position: [4 * Math.sin(theta), 7, 4 * Math.cos(theta)],
         }}
       >
-        {/* <MainMenu /> */}
-
         <Suspense fallback={<Loader />}>
           {/* <axesHelper args={[10, 10, 10]} /> */}
-
+          <Fade />
           <CameraController
             isDragging={isDragging}
             theta={theta}
@@ -480,16 +480,18 @@ export default function App({ updateSocket }) {
             changeBgColor={changeBgColor}
             theta={theta}
           />
+
+          <HudElements
+            maxPlayers={maxPlayers}
+            seatsTaken={seatsTaken}
+            takeSeat={takeSeat}
+            handleLeave={handleLeave}
+            cardStack={cardStack}
+            removeCard={removeCard}
+            spectators={spectators}
+          />
         </Suspense>
       </Canvas>
-      <Seats
-        sides={maxPlayers}
-        takenSeats={seatsTaken}
-        spectators={spectators}
-        takeSeat={takeSeat}
-        handleLeave={handleLeave}
-      />
-      <StackUI cardStack={cardStack} removeCard={removeCard} />
     </div>
   );
 }

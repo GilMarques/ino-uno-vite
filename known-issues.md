@@ -1,2 +1,1 @@
-**Camera Shake + Camera Controls**
-**Playing last card in hand**
+**Camera Shake + Camera Controls don't synergize very well**

@@ -18,7 +18,7 @@ const io = new Server(server, {
 function coloredNumber(deck) {
   for (let card of deck) {
     let [color, value] = card.name.split("/");
-    console.log("color", color, "value", value);
+
     if (
       color != "black" &&
       value != "reverse" &&
@@ -32,7 +32,7 @@ function coloredNumber(deck) {
 let serverDeck = deck;
 let serverColor = "white";
 let firstCard = coloredNumber(serverDeck);
-console.log("firstCard", firstCard);
+
 let color = firstCard.name.split("/")[0];
 serverColor = color;
 serverDeck = serverDeck.filter((card) => card.id !== firstCard.id);
@@ -269,13 +269,13 @@ updateNameSpace.on("connection", (socket) => {
 });
 
 setInterval(() => {
-  // console.log("Rotation", serverRotation);
-  // console.log("Color", serverColor);
-  // console.log("deck length", serverDeck.length);
-  console.log("serverData", serverData);
-  // console.log("nameSpace", updateNameSpace);
-  // console.log("ServerStack", serverStack);
-  // console.log("connectedSockets", connectedSockets);
+  //   // console.log("Rotation", serverRotation);
+  //   // console.log("Color", serverColor);
+  console.log("deck length", serverDeck.length);
+  //   console.log("serverData", serverData);
+  //   // console.log("nameSpace", updateNameSpace);
+  //   // console.log("ServerStack", serverStack);
+  //   // console.log("connectedSockets", connectedSockets);
 }, 5000);
 
 server.listen(port, () => {

@@ -1,18 +1,28 @@
 import { animated, easings, useSpring } from "@react-spring/three";
 import { Billboard, Hud } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-const Fade = () => {
-  const ref = useRef();
+const Fade = ({ active, type, duration = 500, onRest = () => {} }) => {
+  const ref = useRef<THREE.MeshBasicMaterial>();
   const [spring, api] = useSpring(() => ({
-    opacity: 1,
-    config: { easing: easings.easeOutCubic },
+    opacity: type ? 0 : 1,
+    config: { duration: duration, easing: easings.easeInOutCubic },
   }));
 
+  useFrame(() => {
+    console.log(type);
+  });
+
   useEffect(() => {
-    api.start({
-      opacity: 0,
-    });
-  }, [api]);
+    if (active) {
+      api.start({
+        opacity: type ? 1 : 0,
+        onRest: () => {
+          onRest();
+        },
+      });
+    }
+  }, [api, active]);
 
   return (
     <Hud renderPriority={2}>

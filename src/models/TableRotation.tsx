@@ -32,17 +32,21 @@ const TableRotation = ({
           {
             scale: [0, 0, 1],
             rotation: rotationDirection
-              ? [-Math.PI / 2, 0, ref.current.rotation.z + 10 * Math.PI * -1]
+              ? [
+                  ref.current.rotation.x,
+                  ref.current.rotation.y,
+                  ref.current.rotation.z + 10 * Math.PI * -1,
+                ]
               : [
-                  -Math.PI / 2,
-                  Math.PI,
+                  ref.current.rotation.x,
+                  ref.current.rotation.y,
                   ref.current?.rotation.z + 10 * Math.PI * -1,
                 ],
           },
           {
             rotation: rotationDirection
-              ? [-Math.PI / 2, Math.PI, 0]
-              : [-Math.PI / 2, 0, 0],
+              ? [ref.current.rotation.x, Math.PI, 0]
+              : [ref.current.rotation.x, 0, 0],
           },
           {
             scale: [2, 2, 1],

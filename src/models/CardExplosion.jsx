@@ -17,7 +17,7 @@ var CARD_RADIUS = 0.07;
 var CARD_SMOOTHNESS = 10;
 
 const pointingAway = (function () {
-  let x, y, z, w;
+  let r, theta, phi, w;
 
   const vFrom = new THREE.Vector3(0, 1, 0);
   const vTo = new THREE.Vector3();
@@ -27,26 +27,17 @@ const pointingAway = (function () {
   }
 
   return (position, quaternion, scale) => {
-    const a = 5,
-      b = 1;
-    x =
-      Math.random() > 0.5
-        ? randomFromInterval(-a, -b)
-        : randomFromInterval(a, b);
-    y =
-      Math.random() > 0.5
-        ? randomFromInterval(-a, -b)
-        : randomFromInterval(a, b);
-    z =
-      Math.random() > 0.5
-        ? randomFromInterval(-a, -b)
-        : randomFromInterval(a, b);
-    position.x = x;
-    position.y = y;
-    position.z = z;
+    const a = 3.5,
+      b = 5;
+
+    r = randomFromInterval(a, b);
+    theta = 2 * Math.PI * Math.random();
+    phi = 2 * Math.PI * Math.random();
+
+    position.setFromSphericalCoords(r, theta, phi);
     w = 2 * Math.random() - 1;
     quaternion
-      .setFromUnitVectors(vFrom, vTo.set(x, y, z).normalize())
+      .setFromUnitVectors(vFrom, vTo.copy(position).normalize())
       .multiply(new THREE.Quaternion(0, Math.sqrt(1 - w * w), 0, w));
 
     scale.x = scale.y = scale.z = 1;
@@ -54,7 +45,16 @@ const pointingAway = (function () {
 })();
 
 const Newdeck = [...deck, ...deck];
-
+const cardArray = [];
+for (let i = 0; i < Newdeck.length; i++) {
+  const position = new THREE.Vector3();
+  const quaternion = new THREE.Quaternion();
+  const rotation = new THREE.Euler();
+  const scale = new THREE.Vector3();
+  pointingAway(position, quaternion, scale);
+  rotation.setFromQuaternion(quaternion);
+  cardArray.push({ name: Newdeck[i].name, position, rotation, scale });
+}
 const CardExplosion = ({ active }) => {
   const ref = useRef();
 
@@ -75,14 +75,7 @@ const CardExplosion = ({ active }) => {
 
   return (
     <group ref={ref}>
-      {Newdeck.map((card, index) => {
-        const position = new THREE.Vector3();
-        const quaternion = new THREE.Quaternion();
-        const rotation = new THREE.Euler();
-        const scale = new THREE.Vector3();
-        pointingAway(position, quaternion, scale);
-        rotation.setFromQuaternion(quaternion);
-
+      {cardArray.map(({ name, position, rotation, scale }, index) => {
         return (
           <mesh
             key={index}
@@ -101,7 +94,7 @@ const CardExplosion = ({ active }) => {
           >
             <meshStandardMaterial
               attach="material-0"
-              map={textureMap[card.name]}
+              map={textureMap[name]}
               side={THREE.DoubleSide}
             />
             <meshStandardMaterial

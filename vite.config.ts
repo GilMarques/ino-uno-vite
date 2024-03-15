@@ -10,5 +10,5 @@ export default defineConfig({
     }
 },
 assetsInclude: ['**/*.glb', '**/*.hdr'],
-
+base: '/ino-uno-vite/'
 })

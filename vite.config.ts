@@ -9,6 +9,6 @@ export default defineConfig({
         '@': fileURLToPath(new URL('./src', import.meta.url))
     }
 },
-assetsInclude: ['**/*.glb', '**/*.hdr'],
+assetsInclude: ['**/*.glb', '**/*.hdr', '**/*.json'],
 base: '/ino-uno-vite/'
 })

@@ -11,7 +11,7 @@ import { useGLTF } from "@react-three/drei";
 
 export function VictorianTable(props) {
   const { nodes, materials } = useGLTF(
-    "/ino-uno-vite/src/assets/victorian_wooden_table.glb"
+    "./src/assets/victorian_wooden_table.glb"
   );
   return (
     <group

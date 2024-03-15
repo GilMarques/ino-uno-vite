@@ -145,12 +145,12 @@ updateNameSpace.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`${socket.id} has disconnected`);
     const seat = connectedSockets.get(socket);
+    if (!seat) return;
     console.log(`Disconnecting seat:${seat}`);
     if (seat === -1) {
       spectators--;
     } else {
-      if (serverData[seat].cards !== null)
-        serverDeck = [...serverDeck, ...serverData[seat].cards];
+      serverDeck = [...serverDeck, ...serverData[seat].cards];
       serverData[seat].cards = null;
     }
     connectedSockets.delete(socket);
@@ -269,16 +269,6 @@ updateNameSpace.on("connection", (socket) => {
     updateNameSpace.emit("changedColor", serverColor);
   });
 });
-
-setInterval(() => {
-  //   // console.log("Rotation", serverRotation);
-  //   // console.log("Color", serverColor);
-  console.log("deck length", serverDeck.length);
-  //   console.log("serverData", serverData);
-  //   // console.log("nameSpace", updateNameSpace);
-  //   // console.log("ServerStack", serverStack);
-  //   // console.log("connectedSockets", connectedSockets);
-}, 5000);
 
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);

@@ -284,7 +284,7 @@ const Game = ({ updateSocket }) => {
     }) {
       setPlaying(true);
       setSeat(seat);
-      setTheta((seat * (Math.PI * 2)) / maxPlayers);
+
       setServerData(serverData);
       setCardStack(serverStack);
       setBgColor(serverColor);

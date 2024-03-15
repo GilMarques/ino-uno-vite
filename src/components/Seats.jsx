@@ -3,6 +3,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { IconButton } from "@mui/material";
 import React from "react";
+import { tabletexture } from "../assets";
 const pentagonStyle = {
   width: "201px", // Adjust size as needed
   height: "201px", // Adjust size as needed
@@ -25,7 +26,7 @@ const innerCircleStyle = {
   position: "absolute",
   width: "60px", // Adjust size of inner circle
   height: "60px", // Adjust size of inner circle
-  backgroundImage: "url('/ino-uno-vite/src/assets/table_texture.png')", // Adjust color of inner circle
+  backgroundImage: tabletexture, // Adjust color of inner circle
   borderRadius: "50%",
   border: "1px solid black",
   top: "calc(50% - 20px)", // Half the height of the inner circle

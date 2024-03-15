@@ -8,11 +8,10 @@ Title: Victorian Wooden table
 
 "use client";
 import { useGLTF } from "@react-three/drei";
+import { victoriantable } from "../assets";
 
 export function VictorianTable(props) {
-  const { nodes, materials } = useGLTF(
-    "./src/assets/victorian_wooden_table.glb"
-  );
+  const { nodes, materials } = useGLTF(victoriantable);
   return (
     <group
       {...props}

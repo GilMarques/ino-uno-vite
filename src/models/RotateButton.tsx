@@ -3,8 +3,8 @@ import { easing } from "maath";
 import { useRef, useState } from "react";
 import * as THREE from "three";
 import { SRGBColorSpace, TextureLoader } from "three";
-
-const texture = new TextureLoader().load(`/ino-uno-vite/src/assets/arrow.png`);
+import { arrow } from "../assets";
+const texture = new TextureLoader().load(arrow);
 texture.colorSpace = SRGBColorSpace;
 
 const RotateButton = ({ position, flip, shift }) => {

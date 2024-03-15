@@ -1,6 +1,6 @@
 import { SRGBColorSpace } from "three";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
-
+import { back, cards } from "../assets";
 const colors = ["red", "green", "blue", "yellow"];
 const values = [
   "0",
@@ -22,25 +22,23 @@ const textureMap = {};
 colors.forEach((color) =>
   values.forEach((value) => {
     textureMap[`${color}/${value}`] = new TextureLoader().load(
-      `src/assets/cards/${color}/${value}.png`
+      cards[`${color}/${value}`]
     );
     textureMap[`${color}/${value}`].colorSpace = SRGBColorSpace;
   })
 );
 
-const special = ["black/plus4", "black/changecolor"];
 const path = ["black/plus4", "black/changecolor"];
+
 for (let j = 0; j < 2; j++) {
   for (let i = 0; i < 4; i++) {
-    textureMap[special[j]] = new TextureLoader().load(
-      `src/assets/cards/` + path[j] + `.png`
-    );
+    textureMap[path[j]] = new TextureLoader().load(cards[path[j]]);
 
-    textureMap[special[j]].colorSpace = SRGBColorSpace;
+    textureMap[path[j]].colorSpace = SRGBColorSpace;
   }
 }
 
-textureMap["back"] = new TextureLoader().load(`src/assets/cards/back.png`);
+textureMap["back"] = new TextureLoader().load(back);
 textureMap[`back`].colorSpace = SRGBColorSpace;
 
 export default textureMap;

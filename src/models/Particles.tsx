@@ -2,9 +2,8 @@ import { Billboard } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-const texture = new THREE.TextureLoader().load(
-  "/ino-uno-vite/src/assets/star.png"
-);
+import { star } from "../assets";
+const texture = new THREE.TextureLoader().load(star);
 
 const emissiveIntensity = {
   red: 1,

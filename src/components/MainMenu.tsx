@@ -3,6 +3,7 @@ import Fade from "@/models/Fade";
 import { Billboard, Environment, Html, Hud, Image } from "@react-three/drei";
 import { useState } from "react";
 import * as THREE from "three";
+import { hero } from "../assets";
 const MainMenu = ({ setConnected }) => {
   const [active, setActive] = useState(false);
 
@@ -31,7 +32,7 @@ const MainMenu = ({ setConnected }) => {
 
       <Billboard>
         <Image
-          url="./src/assets/Hero.png"
+          url={hero}
           transparent={true}
           scale={10}
           side={THREE.DoubleSide}

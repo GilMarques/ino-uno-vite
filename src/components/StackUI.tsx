@@ -1,5 +1,7 @@
 import { cardProps } from "@/types/types";
 import { animated, useTransition } from "react-spring";
+import { cards } from "../assets";
+
 type StackUIProps = {
   cardStack: cardProps[];
   removeCard: (card: cardProps) => void;
@@ -40,7 +42,7 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
             >
               <img
                 className="rounded-[8px] border-2 border-black"
-                src={`/ino-uno-vite/src/assets/cards/${card.name}.png`}
+                src={cards[card.name]}
                 width={50}
                 height={50}
                 alt={`${card.name}`}

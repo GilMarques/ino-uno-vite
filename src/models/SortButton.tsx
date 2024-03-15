@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import * as THREE from "three";
 import { SRGBColorSpace, TextureLoader } from "three";
 
-const texture = new TextureLoader().load(`src/assets/sort.png`);
+const texture = new TextureLoader().load(`/ino-uno-vite/src/assets/sort.png`);
 texture.colorSpace = SRGBColorSpace;
 
 const SortButton = ({ position, sortCards }) => {

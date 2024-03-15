@@ -1,6 +1,5 @@
 import { animated, easings, useSpring } from "@react-spring/three";
 import { Billboard, Hud } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 const Fade = ({ active, type, duration = 500, onRest = () => {} }) => {
   const ref = useRef<THREE.MeshBasicMaterial>(null);
@@ -8,10 +7,6 @@ const Fade = ({ active, type, duration = 500, onRest = () => {} }) => {
     opacity: type ? 0 : 1,
     config: { duration: duration, easing: easings.easeInOutCubic },
   }));
-
-  useFrame(() => {
-    console.log(type);
-  });
 
   useEffect(() => {
     if (active) {

@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import * as THREE from "three";
 import { SRGBColorSpace, TextureLoader } from "three";
 
-const texture = new TextureLoader().load(`src/assets/arrow.png`);
+const texture = new TextureLoader().load(`/ino-uno-vite/src/assets/arrow.png`);
 texture.colorSpace = SRGBColorSpace;
 
 const RotateButton = ({ position, flip, shift }) => {

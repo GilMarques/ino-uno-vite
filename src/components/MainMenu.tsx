@@ -31,7 +31,7 @@ const MainMenu = ({ setConnected }) => {
 
       <Billboard>
         <Image
-          url="/Hero.png"
+          url="/ino-uno-vite/src/assets/Hero.png"
           transparent={true}
           scale={10}
           side={THREE.DoubleSide}
@@ -41,7 +41,7 @@ const MainMenu = ({ setConnected }) => {
         />
       </Billboard>
       <Environment
-        files={"./kloppenheim_01_puresky_4k.hdr"}
+        files={"/ino-uno-vite/src/assets/kloppenheim_01_puresky_4k.hdr"}
         background={true}
         blur={0.2}
       />

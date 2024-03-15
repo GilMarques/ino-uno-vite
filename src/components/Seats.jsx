@@ -25,7 +25,7 @@ const innerCircleStyle = {
   position: "absolute",
   width: "60px", // Adjust size of inner circle
   height: "60px", // Adjust size of inner circle
-  backgroundImage: "url('/table_texture.png')", // Adjust color of inner circle
+  backgroundImage: "url('/ino-uno-vite/src/assets/table_texture.png')", // Adjust color of inner circle
   borderRadius: "50%",
   border: "1px solid black",
   top: "calc(50% - 20px)", // Half the height of the inner circle
@@ -49,7 +49,6 @@ const Seats = ({ sides, takenSeats, spectators, takeSeat, handleLeave }) => {
           transform: `rotate(${angle * i}deg) translate(0%, -${r}%)`,
         }}
         onClick={() => {
-          console.log("clicked");
           takeSeat(i);
         }}
       ></div>

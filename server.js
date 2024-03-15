@@ -145,10 +145,12 @@ updateNameSpace.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`${socket.id} has disconnected`);
     const seat = connectedSockets.get(socket);
+    console.log(`Disconnecting seat:${seat}`);
     if (seat === -1) {
       spectators--;
     } else {
-      serverDeck = [...serverDeck, ...serverData[seat].cards];
+      if (serverData[seat].cards !== null)
+        serverDeck = [...serverDeck, ...serverData[seat].cards];
       serverData[seat].cards = null;
     }
     connectedSockets.delete(socket);

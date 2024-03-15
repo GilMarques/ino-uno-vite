@@ -40,7 +40,7 @@ const StackUI = ({ cardStack, removeCard }: StackUIProps) => {
             >
               <img
                 className="rounded-[8px] border-2 border-black"
-                src={`/src/assets/cards/${card.name}.png`}
+                src={`/ino-uno-vite/src/assets/cards/${card.name}.png`}
                 width={50}
                 height={50}
                 alt={`${card.name}`}

@@ -1,8 +1,8 @@
 import newCardCoords from "@/lib/coordsCache";
 
+import OtherCard from "@/models/OtherCard";
 import { cardProps, handProps } from "@/types/types";
 import { useEffect, useState } from "react";
-import OtherCard from "./OtherCard";
 
 type OtherHandProps = {
   cards: cardProps[];

@@ -9,5 +9,6 @@ export default defineConfig({
         '@': fileURLToPath(new URL('./src', import.meta.url))
     }
 },
+assetsInclude: ['**/*.gltf',  '**/*.glb' , '**/*.png' , '**/*.hdr', '**/*.json'],
 
 })

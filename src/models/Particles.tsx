@@ -13,18 +13,20 @@ const emissiveIntensity = {
 };
 
 const StarParticle = ({ color, position, index }) => {
-  const ref = useRef();
+  const ref = useRef<THREE.Mesh>(null);
   const l = ((Math.random() + 1) / 2) * 0.25;
   const xDir = index % 2 ? -1 : 1;
   const vy0 = ((Math.random() + 1) / 2) * 0.008;
   let t = 0;
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     t += delta * 10;
-    ref.current.rotation.z += 0.05;
-    ref.current.position.y += -0.001 * t * t + vy0 * t;
-    ref.current.position.x += xDir * 0.0013 * t;
-    ref.current.scale.x -= 0.001 * t;
-    ref.current.scale.y -= 0.001 * t;
+    if (ref.current) {
+      ref.current.rotation.z += 0.05;
+      ref.current.position.y += -0.001 * t * t + vy0 * t;
+      ref.current.position.x += xDir * 0.0013 * t;
+      ref.current.scale.x -= 0.001 * t;
+      ref.current.scale.y -= 0.001 * t;
+    }
   });
 
   return (
@@ -44,14 +46,14 @@ const StarParticle = ({ color, position, index }) => {
 const Particles = ({ color, setActive }) => {
   const n = 5;
 
-  const stars = [];
+  const stars: JSX.Element[] = [];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActive(false);
     }, 750);
     return () => clearInterval(interval);
-  }, []);
+  }, [setActive]);
 
   for (let i = 0; i < n; i++) {
     stars.push(

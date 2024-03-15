@@ -11,7 +11,7 @@ const TableRotation = ({
 }: {
   rotationDirection: boolean;
 }) => {
-  const ref = useRef<THREE.Mesh>();
+  const ref = useRef<THREE.Mesh>(null);
 
   const [spring, setSpring] = useSpring(() => ({
     scale: [2, 2, 1],
@@ -26,7 +26,7 @@ const TableRotation = ({
 
   useEffect(() => {
     if (ref.current) {
-      //@ts-ignore
+      //@ts-expect-error Overload
       setSpring.start({
         to: [
           {
@@ -70,6 +70,7 @@ const TableRotation = ({
 
       <animated.mesh
         ref={ref}
+        //@ts-expect-error SpringValues
         rotation={[-Math.PI / 2, Math.PI, 0]}
         {...spring}
       >

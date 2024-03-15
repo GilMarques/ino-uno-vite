@@ -1,6 +1,7 @@
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 import textureMap from "@/lib/texture";
-import { cardProps } from "@/types/Card";
+import { cardProps } from "@/types/types";
+
 import { Physics, useBox, usePlane } from "@react-three/cannon";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
@@ -29,7 +30,7 @@ const Plane = (props) => {
     () => ({
       ...props,
     }),
-    useRef(null)
+    useRef<THREE.Mesh>(null)
   );
   return (
     <mesh ref={ref} receiveShadow>
@@ -40,7 +41,11 @@ const Plane = (props) => {
 };
 
 const FallingCard = ({ face, index, shake }: FallingCardProps) => {
-  const args = [CARD_WIDTH, CARD_HEIGHT, CARD_DEPTH + 0.01];
+  const args: [number, number, number] = [
+    CARD_WIDTH,
+    CARD_HEIGHT,
+    CARD_DEPTH + 0.01,
+  ];
   const [ref, api] = useBox(
     () => ({
       args,
@@ -54,7 +59,7 @@ const FallingCard = ({ face, index, shake }: FallingCardProps) => {
 
       sleepSpeedLimit: 1, // removes wobble
     }),
-    useRef(null)
+    useRef<THREE.Mesh>(null)
   );
 
   //Wobble cards on remove/add

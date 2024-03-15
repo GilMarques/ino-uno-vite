@@ -3,7 +3,7 @@ import { Billboard, Hud } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 const Fade = ({ active, type, duration = 500, onRest = () => {} }) => {
-  const ref = useRef<THREE.MeshBasicMaterial>();
+  const ref = useRef<THREE.MeshBasicMaterial>(null);
   const [spring, api] = useSpring(() => ({
     opacity: type ? 0 : 1,
     config: { duration: duration, easing: easings.easeInOutCubic },
@@ -22,7 +22,7 @@ const Fade = ({ active, type, duration = 500, onRest = () => {} }) => {
         },
       });
     }
-  }, [api, active]);
+  }, [api, active, onRest, type]);
 
   return (
     <Hud renderPriority={2}>

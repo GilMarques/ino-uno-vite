@@ -8,7 +8,7 @@ const CameraController = ({
   particleEffectsActive,
 }) => {
   // console.log(props);
-  const ref = useRef();
+  const ref = useRef<CameraControls>(null);
 
   // const  = props;
   useEffect(() => {
@@ -48,7 +48,6 @@ const CameraController = ({
       />
       {particleEffectsActive && (
         <CameraShake
-          controls={ref}
           maxPitch={0.03}
           maxRoll={0.03}
           maxYaw={0.03}

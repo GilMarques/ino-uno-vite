@@ -2,22 +2,22 @@ import { useFrame } from "@react-three/fiber";
 import { easing } from "maath";
 import { useRef, useState } from "react";
 import * as THREE from "three";
-import { SRGBColorSpace } from "three";
-import { TextureLoader } from "three/src/loaders/TextureLoader";
+import { SRGBColorSpace, TextureLoader } from "three";
+
 const texture = new TextureLoader().load(`src/assets/sort.png`);
 texture.colorSpace = SRGBColorSpace;
 
 const SortButton = ({ position, sortCards }) => {
-  const ref = useRef();
+  const ref = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
-  const scaleMod = useRef(1);
+  const scaleMod = useRef<number>(1);
 
   const handleClick = () => {
     scaleMod.current = 3;
     sortCards();
   };
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (scaleMod.current > 1) {
       scaleMod.current -= 0.3;
     }

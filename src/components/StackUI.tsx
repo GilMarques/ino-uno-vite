@@ -1,4 +1,4 @@
-import { cardProps } from "@/types/Card";
+import { cardProps } from "@/types/types";
 import { animated, useTransition } from "react-spring";
 type StackUIProps = {
   cardStack: cardProps[];

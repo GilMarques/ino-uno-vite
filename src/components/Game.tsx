@@ -10,10 +10,10 @@ import SpectateText from "@/models/SpectateText";
 import Stack from "@/models/Stack";
 import TableRotation from "@/models/TableRotation";
 import VictorianTable from "@/models/VictorianTable";
-import { cardProps } from "@/types/types";
+import { ServerDataProps, cardProps } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 
-function createShiftedArray(arr, shift) {
+function createShiftedArray(arr: cardProps[], shift: number) {
   const length = arr.length;
   if (length === 0) {
     return arr.slice(); // Return a shallow copy of the original array
@@ -22,7 +22,7 @@ function createShiftedArray(arr, shift) {
   // Normalize shift value to be within the range of the array length
   shift %= length;
 
-  const shiftedIndices = arr.map((_, index) => {
+  const shiftedIndices = arr.map((_, index: number) => {
     let newIndex = index + shift;
     if (newIndex < 0) {
       newIndex += length; // Wrap around for negative indices
@@ -32,11 +32,11 @@ function createShiftedArray(arr, shift) {
     return newIndex;
   });
 
-  return shiftedIndices.map((index) => arr[index]);
+  return shiftedIndices.map((index: number) => arr[index]);
 }
 
-function findUniqueElements(array1, array2) {
-  const uniqueElements = [];
+function findUniqueElements(array1: cardProps[], array2: cardProps[]) {
+  const uniqueElements: { id: string; name: string; fromArray: number }[] = [];
 
   // Check for elements unique to array1
   array1.forEach((tuple) => {
@@ -61,23 +61,23 @@ function findUniqueElements(array1, array2) {
   return uniqueElements;
 }
 const Game = ({ updateSocket }) => {
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState<boolean>(false);
 
-  const [seat, setSeat] = useState(-1);
+  const [seat, setSeat] = useState<number>(-1);
 
-  const [theta, setTheta] = useState(0);
+  const [theta, setTheta] = useState<number>(0);
 
-  const [maxPlayers, setMaxPlayers] = useState(4);
+  const [maxPlayers, setMaxPlayers] = useState<number>(4);
 
-  const [spectators, setSpectators] = useState(0);
+  const [spectators, setSpectators] = useState<number>(0);
 
-  const [colorChangerActive, setColorChangerActive] = useState(false);
+  const [colorChangerActive, setColorChangerActive] = useState<boolean>(false);
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const [serverData, setServerData] = useState([]);
+  const [serverData, setServerData] = useState<ServerDataProps[]>([]);
   const [cards, setCards] = useState<cardProps[]>([]);
-  const [seatsTaken, setSeatsTaken] = useState([]);
+  const [seatsTaken, setSeatsTaken] = useState<number[]>([]);
 
   const [cardStack, setCardStack] = useState<cardProps[]>([]);
 
@@ -86,7 +86,8 @@ const Game = ({ updateSocket }) => {
   const [bgColor, setBgColor] = useState<string>("white");
   const [rotationDirection, setRotationDirection] = useState<boolean>(true);
 
-  const [particleEffectsActive, setParticleEffectsActive] = useState(false);
+  const [particleEffectsActive, setParticleEffectsActive] =
+    useState<boolean>(false);
 
   /* -------------------------------- Callbacks ------------------------------- */
   const drawCard = useCallback(() => {
@@ -94,7 +95,7 @@ const Game = ({ updateSocket }) => {
   }, [updateSocket]);
 
   const playCard = useCallback(
-    (card) => {
+    (card: cardProps) => {
       updateSocket.emit("playCard", {
         card,
       });
@@ -102,18 +103,8 @@ const Game = ({ updateSocket }) => {
     [updateSocket]
   );
 
-  const hoverCard = useCallback(
-    (id) => {
-      // updateSocket.emit("hoverCard", {
-      //   id: id,
-      //   playerId: socketId.current,
-      // });
-    },
-    [updateSocket]
-  );
-
   const removeCard = useCallback(
-    (card) => {
+    (card: cardProps) => {
       updateSocket.emit("stackRemove", {
         card,
       });
@@ -122,19 +113,15 @@ const Game = ({ updateSocket }) => {
   );
 
   const changeBgColor = useCallback(
-    (color) => {
+    (color: string) => {
       setColorChangerActive(false);
       updateSocket.emit("changeColor", color);
     },
     [updateSocket]
   );
 
-  const shuffleDeck = useCallback(() => {
-    updateSocket.emit("shuffle");
-  }, [updateSocket]);
-
   const takeSeat = useCallback(
-    (seat) => {
+    (seat: number) => {
       if (playing) return;
 
       updateSocket.emit("takeSeat", seat);
@@ -174,27 +161,32 @@ const Game = ({ updateSocket }) => {
     });
   }, []);
 
-  const handleShift = useCallback((x) => {
+  const handleShift = useCallback((x: number) => {
     setCards((prev) => createShiftedArray(prev, x));
   }, []);
 
-  const handleSetCards = useCallback((prev, serverCards) => {
-    const uniqueElements = findUniqueElements(prev, serverCards);
+  const handleSetCards = useCallback(
+    (prev: cardProps[], serverCards: cardProps[]) => {
+      const uniqueElements = findUniqueElements(prev, serverCards);
 
-    //from array1 remove
-    //from array2 add
-    uniqueElements.forEach((element) => {
-      if (element.fromArray === 1) {
-        prev = prev.filter((card) => card.id !== element.id);
-      }
+      //from array1 remove
+      //from array2 add
+      uniqueElements.forEach(
+        (element: { id: string; fromArray: number; name: string }) => {
+          if (element.fromArray === 1) {
+            prev = prev.filter((card) => card.id !== element.id);
+          }
 
-      if (element.fromArray === 2) {
-        prev.push(element);
-      }
-    });
+          if (element.fromArray === 2) {
+            prev.push(element);
+          }
+        }
+      );
 
-    return [...prev];
-  }, []);
+      return [...prev];
+    },
+    []
+  );
 
   const handleLeave = useCallback(() => {
     updateSocket.emit("leave");
@@ -206,23 +198,20 @@ const Game = ({ updateSocket }) => {
     if (seat !== -1) {
       setTheta((seat * (Math.PI * 2)) / maxPlayers);
     }
-  }, [seat]);
+  }, [seat, maxPlayers]);
 
   //update user cards
   useEffect(() => {
     if (playing) {
-      setCards((prev) => handleSetCards(prev, serverData[seat]?.cards));
+      setCards((prev) =>
+        handleSetCards(prev, serverData[seat].cards as cardProps[])
+      );
     }
 
     setSeatsTaken(
-      serverData.reduce((acc, p) => {
-        if (p.cards !== null) {
-          return acc.concat(p.seat);
-        }
-        return acc;
-      }, [])
+      serverData.filter((p) => p.cards !== null).map((p) => p.seat)
     );
-  }, [serverData]);
+  }, [serverData, handleSetCards, playing, seat]);
 
   useEffect(() => {
     updateSocket.emit("join");
@@ -376,21 +365,13 @@ const Game = ({ updateSocket }) => {
         <Particles color={bgColor} setActive={setParticleEffectsActive} />
       )}
 
-      <Deck
-        deckLength={deckLength}
-        shuffleDeck={shuffleDeck}
-        position={[1, 0, 1]}
-        drawCard={drawCard}
-      />
+      <Deck deckLength={deckLength} position={[1, 0, 1]} drawCard={drawCard} />
       {playing && (
         <Hand
           rotation={[0, theta, 0]}
           cards={cards}
           handleShift={handleShift}
-          setCards={setCards}
-          hoverCard={hoverCard}
           setIsDragging={setIsDragging}
-          isDragging={isDragging}
           playCard={playCard}
           bgColor={bgColor}
           sortCards={sortCards}
@@ -399,7 +380,6 @@ const Game = ({ updateSocket }) => {
       )}
       <Background bgColor={bgColor} />
       <TableRotation rotationDirection={rotationDirection} />
-      {/* <Stool position={[0, 0, -1]} scale={5} /> */}
 
       {serverData.map(
         (player) =>

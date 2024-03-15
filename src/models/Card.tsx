@@ -30,14 +30,14 @@ const Card = ({
   name,
   playCard,
   rotZ0,
-  hoverCard,
+
   setIsDragging,
   bgColor,
   setColorChangerActive,
 }) => {
   const color = name.split("/")[0];
-  const ref = useRef<THREE.Group>();
-  const ref2 = useRef<THREE.Group>();
+  const ref = useRef<THREE.Group>(null);
+  const ref2 = useRef<THREE.Group>(null);
   const scaling = 200;
   const z = 0.1;
   const [cardPos, setCardPos] = useState(position);
@@ -85,7 +85,6 @@ const Card = ({
     },
     //selection scaling
     onHover: ({ hovering }) => {
-      hoverCard(id);
       set({
         scale: hovering ? [1.2, 1.2, 1.2] : [1, 1, 1],
         rotation: hovering ? [0, 0, 0] : [0, 0, rotZ0],
@@ -110,20 +109,22 @@ const Card = ({
   }, [position, z, rotZ0, set]);
 
   return (
+    //@ts-expect-error SpringValues
     <animated.group ref={ref} {...spring2}>
       <animated.group
         ref={ref2}
+        //@ts-expect-error MouseEvents
         onClick={(event) => {
           event.stopPropagation();
         }}
+        //@ts-expect-error MouseEvents
         onPointerOver={(e) => {
           e.stopPropagation();
         }}
+        //@ts-expect-error MouseEvents
         onPointerDown={(e) => {
           e.stopPropagation();
         }}
-        //   onPointerEnter={() => setShiny(true)}
-        // onPointerLeave={() => setShiny(false)}
         {...spring}
         {...bind()}
       >

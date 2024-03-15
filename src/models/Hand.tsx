@@ -1,16 +1,16 @@
 import newCardCoords from "@/lib/coordsCache";
-import { handProps } from "@/types/Hand";
+
 import { useEffect, useRef, useState } from "react";
 import RotateButton from "./RotateButton";
 
+import { handProps } from "@/types/types";
+import { Group } from "three";
 import Card from "./Card";
 import SortButton from "./SortButton";
 
 const Hand = ({
   cards,
-
   rotation,
-  hoverCard,
   playCard,
   bgColor,
   setIsDragging,
@@ -19,7 +19,7 @@ const Hand = ({
   handleShift,
 }) => {
   const [hand, setHand] = useState<handProps[]>([]);
-  const ref = useRef();
+  const ref = useRef<Group>(null);
 
   useEffect(() => {
     const newHand: handProps[] = [];
@@ -49,7 +49,6 @@ const Hand = ({
           return (
             <Card
               key={card.id}
-              hoverCard={hoverCard}
               id={card.id}
               name={card.name}
               position={{ x: card.x, y: card.y }}

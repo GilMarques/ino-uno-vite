@@ -26,7 +26,7 @@ export default function App({ updateSocket }) {
         {connected ? (
           <Game updateSocket={updateSocket} />
         ) : (
-          <MainMenu updateSocket={updateSocket} setConnected={setConnected} />
+          <MainMenu setConnected={setConnected} />
         )}
       </Canvas>
     </div>

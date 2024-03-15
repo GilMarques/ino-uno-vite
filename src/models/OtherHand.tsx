@@ -1,6 +1,6 @@
 import newCardCoords from "@/lib/coordsCache";
-import { handProps } from "@/types/Hand";
-import { cardProps } from "@/types/types";
+
+import { cardProps, handProps } from "@/types/types";
 import { useEffect, useState } from "react";
 import OtherCard from "./OtherCard";
 
@@ -10,7 +10,7 @@ type OtherHandProps = {
   rotation: [number, number, number];
 };
 
-const OtherHand = ({ cards, setCards, rotation }: OtherHandProps) => {
+const OtherHand = ({ cards, rotation }: OtherHandProps) => {
   const [hand, setHand] = useState<handProps[]>([]);
 
   useEffect(() => {

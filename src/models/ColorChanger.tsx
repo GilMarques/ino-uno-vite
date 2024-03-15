@@ -1,8 +1,8 @@
 import { animated, useSpring } from "@react-spring/three";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import * as THREE from "three";
 
-const colorsInit = ["red", "blue", "green", "yellow"].sort(
+const colors = ["red", "blue", "green", "yellow"].sort(
   () => Math.random() - 0.5
 );
 
@@ -19,7 +19,6 @@ const ColorChanger = ({ colorChangerActive, changeBgColor, theta }) => {
     scale: [1, 0, 1],
     config: { tension: 180, friction: 10 },
   }));
-  const [colors, setColors] = useState(colorsInit);
 
   useEffect(() => {
     // setColors(colorsInit.sort(() => Math.random() - 0.5));
@@ -34,9 +33,9 @@ const ColorChanger = ({ colorChangerActive, changeBgColor, theta }) => {
         config: { duration: 300 },
       });
     }
-  }, [colorChangerActive]);
+  }, [colorChangerActive, setSpring]);
 
-  const handleOnClick = (e, c) => {
+  const handleOnClick = (e: React.MouseEvent, c: string) => {
     e.stopPropagation();
 
     if (colorChangerActive) {
@@ -45,6 +44,7 @@ const ColorChanger = ({ colorChangerActive, changeBgColor, theta }) => {
   };
 
   return (
+    //@ts-expect-error SpringValues
     <animated.group
       position={[0, -0.1, 0]}
       rotation={[0, theta, 0]}
@@ -53,8 +53,10 @@ const ColorChanger = ({ colorChangerActive, changeBgColor, theta }) => {
       <mesh
         position={[0, 0, 0]}
         rotation={[0, -Math.PI / 4, 0]}
+        // @ts-expect-error MouseEvent
         onClick={(e) => handleOnClick(e, colors[0])}
       >
+        {/* @ts-expect-error idk */}
         <cylinderGeometry args={args} />
         <meshStandardMaterial
           side={THREE.DoubleSide}
@@ -67,8 +69,10 @@ const ColorChanger = ({ colorChangerActive, changeBgColor, theta }) => {
       <mesh
         position={[0, 0, 0]}
         rotation={[0, (-5 * Math.PI) / 4, 0]}
+        // @ts-expect-error MouseEvent
         onClick={(e) => handleOnClick(e, colors[1])}
       >
+        {/* @ts-expect-error idk */}
         <cylinderGeometry args={args} />
         <meshStandardMaterial
           side={THREE.DoubleSide}
@@ -81,8 +85,10 @@ const ColorChanger = ({ colorChangerActive, changeBgColor, theta }) => {
       <mesh
         position={[0, 0, 0]}
         rotation={[0, Math.PI / 4, 0]}
+        // @ts-expect-error MouseEvent
         onClick={(e) => handleOnClick(e, colors[2])}
       >
+        {/* @ts-expect-error idk */}
         <cylinderGeometry args={args} />
         <meshStandardMaterial
           side={THREE.DoubleSide}
@@ -95,8 +101,10 @@ const ColorChanger = ({ colorChangerActive, changeBgColor, theta }) => {
       <mesh
         position={[0, 0, 0]}
         rotation={[0, (-3 * Math.PI) / 4, 0]}
+        // @ts-expect-error MouseEvent
         onClick={(e) => handleOnClick(e, colors[3])}
       >
+        {/* @ts-expect-error idk */}
         <cylinderGeometry args={args} />
         <meshStandardMaterial
           side={THREE.DoubleSide}

@@ -36,6 +36,7 @@ const Deck = ({ deckLength, drawCard, position }: DeckProps) => {
     >
       <animated.mesh
         visible={deckLength > 0}
+        //@ts-expect-error MouseEvents
         onClick={drawCard}
         {...spring}
         {...bind()}

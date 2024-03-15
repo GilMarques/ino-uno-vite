@@ -18,6 +18,11 @@ export interface handProps {
   rotation: number;
 }
 
+export type ServerDataProps = {
+  seat: number;
+  cards: cardProps[] | null;
+};
+
 
 
 

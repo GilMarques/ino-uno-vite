@@ -1,13 +1,9 @@
 import CardExplosion from "@/models/CardExplosion";
 import Fade from "@/models/Fade";
 import { Billboard, Environment, Html, Hud, Image } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import * as THREE from "three";
-const MainMenu = ({ updateSocket, setConnected }) => {
-  const { size, viewport } = useThree();
-  const aspect = size.width / viewport.width;
-  const ref = useRef();
+const MainMenu = ({ setConnected }) => {
   const [active, setActive] = useState(false);
 
   const handleClick = () => {

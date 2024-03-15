@@ -1,5 +1,5 @@
 import textureMap from "@/lib/texture";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
@@ -20,13 +20,11 @@ type OtherCardProps = {
   rotZ0: number;
 };
 
-const OtherCard = ({ position, id, name, rotZ0 }: OtherCardProps) => {
-  const ref = useRef<THREE.Group>();
-  const ref2 = useRef<THREE.Group>();
+const OtherCard = ({ position, rotZ0 }: OtherCardProps) => {
+  const ref = useRef<THREE.Group>(null);
+  const ref2 = useRef<THREE.Group>(null);
   const scaling = 200;
   const z = 0.01;
-  const [cardPos, setCardPos] = useState(position);
-  const [onTable, setOnTable] = useState(false);
 
   const [spring, set] = useSpring(() => ({
     scale: [1, 1, 1],
@@ -35,7 +33,7 @@ const OtherCard = ({ position, id, name, rotZ0 }: OtherCardProps) => {
     config: { friction: 15 },
   }));
 
-  const [spring2, set2] = useSpring(() => ({
+  const [spring2] = useSpring(() => ({
     position: [0, 4, 4],
     rotation: [-Math.PI / 4, 0, 0],
     config: { tension: 170, friction: 26 },
@@ -58,7 +56,9 @@ const OtherCard = ({ position, id, name, rotZ0 }: OtherCardProps) => {
   }, [position, z, rotZ0, set]);
 
   return (
+    // @ts-expect-error ts-migrate(2322)
     <animated.group ref={ref} {...spring2}>
+      {/*  @ts-expect-error ts-migrate(2322) */}
       <animated.group ref={ref2} {...spring}>
         <animated.mesh
           castShadow

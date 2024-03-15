@@ -26,7 +26,7 @@ const innerCircleStyle = {
   position: "absolute",
   width: "60px", // Adjust size of inner circle
   height: "60px", // Adjust size of inner circle
-  backgroundImage: tabletexture, // Adjust color of inner circle
+  backgroundImage: `url(${tabletexture})`, // Adjust color of inner circle
   borderRadius: "50%",
   border: "1px solid black",
   top: "calc(50% - 20px)", // Half the height of the inner circle

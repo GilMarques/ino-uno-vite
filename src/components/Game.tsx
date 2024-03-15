@@ -356,7 +356,7 @@ const Game = ({ updateSocket }) => {
       />
 
       <ambientLight intensity={1} color={"white"} />
-      {!playing && <SpectateText />}
+      {seat === -1 && <SpectateText />}
 
       <VictorianTable position={[0, -3.6, 0]} />
       <Stack cardStack={cardStack} position={[0, -0.0, 0]} />

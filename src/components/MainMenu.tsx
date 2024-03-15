@@ -3,7 +3,7 @@ import Fade from "@/models/Fade";
 import { Billboard, Environment, Html, Hud, Image } from "@react-three/drei";
 import { useState } from "react";
 import * as THREE from "three";
-import { hero } from "../assets";
+import { hdri, hero } from "../assets";
 const MainMenu = ({ setConnected }) => {
   const [active, setActive] = useState(false);
 
@@ -41,11 +41,7 @@ const MainMenu = ({ setConnected }) => {
           rotation={[0, 0, 0]}
         />
       </Billboard>
-      <Environment
-        files={"./src/assets/kloppenheim_01_puresky_4k.hdr"}
-        background={true}
-        blur={0.2}
-      />
+      <Environment files={hdri} background={true} blur={0.2} />
 
       <Fade active={active} type={true} duration={1000} />
     </>

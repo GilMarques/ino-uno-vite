@@ -2,7 +2,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import deck from "./startingDeck.js";
-const port = 80;
+const port = 3000;
 
 const app = express();
 const server = http.createServer(app);
@@ -13,7 +13,7 @@ const io = new Server(server, {
     methods: "*",
   },
 });
-console.log(io);
+
 // Update Name Space ----------------------------------------
 
 function coloredNumber(deck) {
@@ -271,6 +271,6 @@ updateNameSpace.on("connection", (socket) => {
   });
 });
 
-server.listen(port, () => {
+server.listen(process.env.PORT || port, () => {
   console.log(`Server listening on port ${port}`);
 });

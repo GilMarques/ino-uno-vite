@@ -2,17 +2,18 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import deck from "./startingDeck.js";
-const port = 3000;
+const port = 80;
 
 const app = express();
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: "*",
     methods: "*",
   },
 });
-
+console.log(io);
 // Update Name Space ----------------------------------------
 
 function coloredNumber(deck) {
@@ -58,9 +59,9 @@ const shuffleDeck = (deck) => {
   return deck;
 };
 
-const rules = (card) => {
-  return true;
-};
+// const rules = (card) => {
+//   return true;
+// };
 
 updateNameSpace.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);

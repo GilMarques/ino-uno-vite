@@ -25,6 +25,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "startingDeck.js", "server.js", "lib"],
+  "include": ["src", "server/startingDeck.js", "server/server.js", "lib"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

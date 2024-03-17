@@ -1,6 +1,6 @@
 import textureMap from "@/lib/texture";
 import * as THREE from "three";
-import deck from "../../startingDeck";
+import deck from "../../server/startingDeck";
 
 import RoundedBoxFlat from "@/lib/roundedboxflat";
 

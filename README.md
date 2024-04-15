@@ -3,6 +3,7 @@
 
 This project is currently under development 
 
+Single Lobby hosted at: https://ino-uno-server.glitch.me/
 
 ## Developer Instructions
 Run locally:

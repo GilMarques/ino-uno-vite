@@ -64,8 +64,6 @@ const shuffleDeck = (deck) => {
 // };
 
 updateNameSpace.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
-
   socket.on("join", () => {
     connectedSockets.set(socket, -1);
     spectators++;
@@ -144,10 +142,9 @@ updateNameSpace.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(`${socket.id} has disconnected`);
     const seat = connectedSockets.get(socket);
     if (!seat) return;
-    console.log(`Disconnecting seat:${seat}`);
+
     if (seat === -1) {
       spectators--;
     } else {

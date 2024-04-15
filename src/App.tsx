@@ -9,6 +9,7 @@ export default function App({ updateSocket }) {
   /* ------------------------------ Socket Events ----------------------------- */
   useEffect(() => {
     updateSocket.connect();
+
     return () => updateSocket.disconnect();
   }, []);
 

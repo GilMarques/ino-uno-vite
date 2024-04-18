@@ -1,40 +1,39 @@
 import newCardCoords from "@/lib/coordsCache";
 
 import OtherCard from "@/models/OtherCard";
-import { cardProps, handProps } from "@/types/types";
+import { handProps } from "@/types/types";
 import { useEffect, useState } from "react";
 
 type OtherHandProps = {
-  cards: cardProps[];
+  cardsLength: number;
 
   rotation: [number, number, number];
 };
 
-const OtherHand = ({ cards, rotation }: OtherHandProps) => {
+const OtherHand = ({ cardsLength, rotation }: OtherHandProps) => {
   const [hand, setHand] = useState<handProps[]>([]);
 
   useEffect(() => {
     const newHand: handProps[] = [];
-    const newCoords = newCardCoords(cards.length);
+    const newCoords = newCardCoords(cardsLength);
 
-    for (let i = 0; i < cards.length; i++) {
+    for (let i = 0; i < cardsLength; i++) {
       newHand.push({
-        id: cards[i].id,
-        name: cards[i].name,
+        id: "",
+        name: "",
         x: newCoords[i].x,
         y: newCoords[i].y,
         rotation: 2 * Math.PI - newCoords[i].angle,
       });
     }
     setHand(newHand);
-  }, [cards]);
+  }, [cardsLength]);
 
   return (
     <group rotation={rotation}>
-      {hand.map((card) => (
+      {hand.map((card, index) => (
         <OtherCard
-          key={card.id}
-          id={card.id}
+          key={index}
           name={card.name}
           position={{ x: card.x, y: card.y }}
           rotZ0={card.rotation}

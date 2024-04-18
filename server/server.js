@@ -63,13 +63,34 @@ const shuffleDeck = (deck) => {
 //   return true;
 // };
 
+const sendData = (socket) => {
+  return serverData.map((data) => {
+    if (data.seat === connectedSockets.get(socket)) {
+      return {
+        seat: data.seat,
+        cards: data.cards,
+        cardsLength: data.cards ? data.cards.length : 0,
+      };
+    } else {
+      return {
+        seat: data.seat,
+        cards: null,
+        cardsLength: data.cards ? data.cards.length : 0,
+      };
+    }
+  });
+};
+
 updateNameSpace.on("connection", (socket) => {
   socket.on("join", () => {
     connectedSockets.set(socket, -1);
     spectators++;
 
+    const userData = sendData(socket);
+
     socket.emit("joined", {
-      serverData,
+      numberofPlayers: maxSeats,
+      serverData: userData,
       serverColor,
       serverRotation,
       serverStack,
@@ -97,27 +118,31 @@ updateNameSpace.on("connection", (socket) => {
 
     spectators--;
 
-    socket.emit("seatTaken", {
-      seat,
-      serverData,
-      serverStack,
-      deckLength: serverDeck.length,
-      serverColor,
-      serverRotation,
-      spectators,
-    });
-
-    socket.broadcast.emit("update", {
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-      deckLength: serverDeck.length,
-      spectators,
-    });
+    for (let s of connectedSockets.keys()) {
+      const userData = sendData(s);
+      if (s !== socket) {
+        s.emit("update", {
+          action: { type: "seatTaken", seat },
+          serverData: userData,
+          serverStack,
+          serverRotation,
+          serverColor,
+          deckLength: serverDeck.length,
+          spectators,
+        });
+      } else {
+        s.emit("seatTaken", {
+          seat,
+          serverData: userData,
+          serverStack,
+          deckLength: serverDeck.length,
+          spectators,
+        });
+      }
+    }
   });
 
-  socket.on("leave", () => {
+  socket.on("leaveSeat", () => {
     const seat = connectedSockets.get(socket);
 
     if (seat === -1) return;
@@ -126,19 +151,27 @@ updateNameSpace.on("connection", (socket) => {
     connectedSockets.set(socket, -1);
     spectators++;
 
-    socket.emit("left", {
-      spectators,
-      serverData,
-    });
-
-    socket.broadcast.emit("update", {
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-      deckLength: serverDeck.length,
-      spectators,
-    });
+    for (let s of connectedSockets.keys()) {
+      const userData = sendData(s);
+      if (s !== socket) {
+        s.emit("update", {
+          action: { type: "leave", seat },
+          serverData: userData,
+          serverStack,
+          serverRotation,
+          serverColor,
+          deckLength: serverDeck.length,
+          spectators,
+        });
+      } else {
+        s.emit("seatLeave", {
+          serverData: userData,
+          serverStack,
+          deckLength: serverDeck.length,
+          spectators,
+        });
+      }
+    }
   });
 
   socket.on("disconnect", () => {
@@ -152,14 +185,21 @@ updateNameSpace.on("connection", (socket) => {
       serverData[seat].cards = null;
     }
     connectedSockets.delete(socket);
-    socket.broadcast.emit("update", {
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-      deckLength: serverDeck.length,
-      spectators,
-    });
+
+    for (let s of connectedSockets.keys()) {
+      const userData = sendData(s);
+      if (s !== socket) {
+        s.emit("update", {
+          action: { type: "stackRemove", seat },
+          serverData: userData,
+          serverStack,
+          serverRotation,
+          serverColor,
+          deckLength: serverDeck.length,
+          spectators,
+        });
+      }
+    }
   });
 
   socket.on("drawCard", () => {
@@ -175,20 +215,18 @@ updateNameSpace.on("connection", (socket) => {
     }
     serverData[seat].cards.push(card);
 
-    socket.emit("cardDrawn", {
-      serverData,
-      serverStack,
-      deckLength: serverDeck.length,
-    });
-
-    socket.broadcast.emit("update", {
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-      deckLength: serverDeck.length,
-      spectators,
-    });
+    for (let s of connectedSockets.keys()) {
+      const userData = sendData(s);
+      s.emit("update", {
+        action: { type: "drawCard", seat },
+        serverData: userData,
+        serverStack,
+        serverRotation,
+        serverColor,
+        deckLength: serverDeck.length,
+        spectators,
+      });
+    }
   });
 
   socket.on("playCard", ({ card }) => {
@@ -211,21 +249,18 @@ updateNameSpace.on("connection", (socket) => {
 
     serverStack.push(card);
 
-    socket.emit("playedCard", {
-      serverColor,
-      serverStack,
-      spectators,
-      serverData,
-    });
-
-    socket.broadcast.emit("update", {
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-      deckLength: serverDeck.length,
-      spectators,
-    });
+    for (let s of connectedSockets.keys()) {
+      const userData = sendData(s);
+      s.emit("update", {
+        action: { type: "playCard", from: (seat * 2 * Math.PI) / maxSeats },
+        serverData: userData,
+        serverStack,
+        serverRotation,
+        serverColor,
+        deckLength: serverDeck.length,
+        spectators,
+      });
+    }
   });
 
   socket.on("stackRemove", ({ card }) => {
@@ -243,21 +278,18 @@ updateNameSpace.on("connection", (socket) => {
       serverRotation = !serverRotation;
     }
 
-    socket.emit("removedFromStack", {
-      serverColor,
-      serverStack,
-      spectators,
-      serverData,
-    });
-
-    socket.broadcast.emit("update", {
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-      deckLength: serverDeck.length,
-      spectators,
-    });
+    for (let s of connectedSockets.keys()) {
+      const userData = sendData(s);
+      s.emit("update", {
+        action: { type: "stackRemove", seat },
+        serverData: userData,
+        serverStack,
+        serverRotation,
+        serverColor,
+        deckLength: serverDeck.length,
+        spectators,
+      });
+    }
   });
 
   socket.on("changeColor", (color) => {

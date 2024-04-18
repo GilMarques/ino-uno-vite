@@ -21,6 +21,7 @@ export interface handProps {
 export type ServerDataProps = {
   seat: number;
   cards: cardProps[] | null;
+  cardsLength: number;
 };
 
 

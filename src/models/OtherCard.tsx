@@ -14,7 +14,6 @@ const CARD_RADIUS = 0.07;
 const CARD_SMOOTHNESS = 10;
 
 type OtherCardProps = {
-  id: string;
   name: string;
   position: { x: number; y: number };
   rotZ0: number;
@@ -33,19 +32,22 @@ const OtherCard = ({ position, rotZ0 }: OtherCardProps) => {
     config: { friction: 15 },
   }));
 
-  const [spring2] = useSpring(() => ({
-    position: [0, 4, 4],
-    rotation: [-Math.PI / 4, 0, 0],
+  const [spring2, set2] = useSpring(() => ({
+    position: [0, 0, 0],
+    rotation: [-Math.PI / 2, 0, 0],
+
     config: { tension: 170, friction: 26 },
   }));
 
-  //   useEffect(() => {
-  //     if (onTable) {
-  //       set2({ position: [0, 0, 4], rotation: [-Math.PI / 2, 0, 0] });
-  //     } else {
-  //       set2({ position: [0, 4, 4], rotation: [-Math.PI / 4, 0, 0] });
-  //     }
-  //   }, [onTable, set2]);
+  const [spring3, set3] = useSpring(() => ({
+    opacity: 0,
+  }));
+
+  useEffect(() => {
+    // set2({ position: [0, 0, 0], rotation: [-Math.PI / 2, 0, 0] });
+    set2({ position: [0, 4, 4], rotation: [-Math.PI / 4, 0, 0] });
+    set3({ opacity: 1 });
+  }, []);
 
   useEffect(() => {
     set({
@@ -55,8 +57,10 @@ const OtherCard = ({ position, rotZ0 }: OtherCardProps) => {
     });
   }, [position, z, rotZ0, set]);
 
+  useEffect(() => {});
+
   return (
-    // @ts-expect-error ts-migrate(2322)
+    //   @ts-expect-error ts-migrate(2322)
     <animated.group ref={ref} {...spring2}>
       {/*  @ts-expect-error ts-migrate(2322) */}
       <animated.group ref={ref2} {...spring}>
@@ -71,20 +75,26 @@ const OtherCard = ({ position, rotZ0 }: OtherCardProps) => {
             CARD_SMOOTHNESS
           )}
         >
-          <meshStandardMaterial
+          <animated.meshStandardMaterial
             attach="material-0"
             // map={textureMap[name]}
             side={THREE.DoubleSide}
+            transparent={true}
+            {...spring3}
           />
-          <meshStandardMaterial
+          <animated.meshStandardMaterial
             attach="material-1"
             map={textureMap["back"]}
             side={THREE.DoubleSide}
+            transparent={true}
+            {...spring3}
           />
-          <meshStandardMaterial
+          <animated.meshStandardMaterial
             attach="material-2"
             color={"black"}
             side={THREE.DoubleSide}
+            transparent={true}
+            {...spring3}
           />
         </animated.mesh>
       </animated.group>

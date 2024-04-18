@@ -6,13 +6,14 @@ import Hand from "@/models/Hand";
 import HudElements from "@/models/HudElements";
 import OtherHand from "@/models/OtherHand";
 import Particles from "@/models/Particles";
+import PlayedCard from "@/models/PlayedCard";
 import SpectateText from "@/models/SpectateText";
 import Stack from "@/models/Stack";
 import TableRotation from "@/models/TableRotation";
 import VictorianTable from "@/models/VictorianTable";
 import { ServerDataProps, cardProps } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
-
+import { v4 as uuidv4 } from "uuid";
 function createShiftedArray(arr: cardProps[], shift: number) {
   const length = arr.length;
   if (length === 0) {
@@ -88,6 +89,10 @@ const Game = ({ updateSocket }) => {
 
   const [particleEffectsActive, setParticleEffectsActive] =
     useState<boolean>(false);
+
+  const [playedCards, setPlayedCards] = useState<
+    { id: string; rotation: number }[]
+  >([]);
 
   /* -------------------------------- Callbacks ------------------------------- */
   const drawCard = useCallback(() => {
@@ -189,10 +194,22 @@ const Game = ({ updateSocket }) => {
   );
 
   const handleLeave = useCallback(() => {
-    updateSocket.emit("leave");
+    updateSocket.emit("leaveSeat");
   }, [updateSocket]);
 
+  const removePlayed = useCallback(
+    (id: string) => {
+      setPlayedCards((prev) =>
+        prev.filter((card: { id: string; rotation: number }) => card.id !== id)
+      );
+    },
+    [setPlayedCards]
+  );
+
   /* --------------------------------- Effects -------------------------------- */
+  useEffect(() => {
+    console.log("played cards", playedCards);
+  }, [playedCards]);
 
   useEffect(() => {
     if (seat !== -1) {
@@ -209,7 +226,7 @@ const Game = ({ updateSocket }) => {
     }
 
     setSeatsTaken(
-      serverData.filter((p) => p.cards !== null).map((p) => p.seat)
+      serverData.filter((p) => p.cardsLength !== 0).map((p) => p.seat)
     );
   }, [serverData, handleSetCards, playing, seat]);
 
@@ -217,6 +234,7 @@ const Game = ({ updateSocket }) => {
     updateSocket.emit("join");
 
     function onJoined({
+      numberofPlayers,
       serverData,
       serverStack,
       deckLength,
@@ -224,7 +242,7 @@ const Game = ({ updateSocket }) => {
       serverRotation,
       spectators,
     }) {
-      setMaxPlayers(serverData.length);
+      setMaxPlayers(numberofPlayers);
       setServerData(serverData);
       setCardStack(serverStack);
       setDeckLength(deckLength);
@@ -233,44 +251,12 @@ const Game = ({ updateSocket }) => {
       setSpectators(spectators);
     }
 
-    function onCardDrawn({ serverData, serverStack, deckLength }) {
-      setServerData(serverData);
-      setCardStack(serverStack);
-      setDeckLength(deckLength);
-    }
-
-    function onRemovedFromStack({
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-    }) {
-      setServerData(serverData);
-      setCardStack(serverStack);
-      setRotationDirection(serverRotation);
-      setBgColor(serverColor);
-    }
-
-    function onShuffled({ serverStack, deckLength }) {
-      setCardStack(serverStack);
-      setDeckLength(deckLength);
-    }
-
-    function onPlayedCard({
-      serverData,
-      serverStack,
-      serverRotation,
-      serverColor,
-    }) {
-      setServerData(serverData);
-      setCardStack(serverStack);
-      setRotationDirection(serverRotation);
-      setBgColor(serverColor);
-      setParticleEffectsActive(true);
-    }
-
     function onChangedColor(color) {
       setBgColor(color);
+    }
+
+    function onSpectators({ spectators }) {
+      setSpectators(spectators);
     }
 
     function onSeatTaken({
@@ -278,33 +264,26 @@ const Game = ({ updateSocket }) => {
       serverData,
       serverStack,
       deckLength,
-      serverColor,
-      serverRotation,
       spectators,
     }) {
       setPlaying(true);
       setSeat(seat);
-
       setServerData(serverData);
       setCardStack(serverStack);
-      setBgColor(serverColor);
       setDeckLength(deckLength);
-      setRotationDirection(serverRotation);
       setSpectators(spectators);
     }
 
-    function onLeft({ serverData, spectators }) {
+    function onSeatLeave({ serverData, spectators, deckLength }) {
       setPlaying(false);
       setSeat(-1);
       setServerData(serverData);
       setSpectators(spectators);
-    }
-
-    function onSpectators({ spectators }) {
-      setSpectators(spectators);
+      setDeckLength(deckLength);
     }
 
     function onUpdate({
+      action,
       serverData,
       serverStack,
       deckLength,
@@ -319,26 +298,31 @@ const Game = ({ updateSocket }) => {
       setRotationDirection(serverRotation);
       setRotationDirection(serverRotation);
       setSpectators(spectators);
+
+      if (action.type == "playCard") {
+        if (action.seat != seat) {
+          setPlayedCards((prev) => [
+            ...prev,
+            {
+              id: uuidv4(),
+              rotation: action.from,
+            },
+          ]);
+        }
+      }
     }
 
     updateSocket.on("joined", onJoined);
     updateSocket.on("seatTaken", onSeatTaken);
-    updateSocket.on("removedFromStack", onRemovedFromStack);
-    updateSocket.on("cardDrawn", onCardDrawn);
-    updateSocket.on("playedCard", onPlayedCard);
-    updateSocket.on("shuffled", onShuffled);
+    updateSocket.on("seatLeave", onSeatLeave);
     updateSocket.on("changedColor", onChangedColor);
-    updateSocket.on("left", onLeft);
     updateSocket.on("spectators", onSpectators);
     updateSocket.on("update", onUpdate);
     return () => {
       updateSocket.off("joined", onJoined);
-      updateSocket.off("addCard", onCardDrawn);
-      updateSocket.off("playedCard", onPlayedCard);
-      updateSocket.off("shuffle", onShuffled);
-      updateSocket.off("removedFromStack", onRemovedFromStack);
       updateSocket.off("seatTaken", onSeatTaken);
-      updateSocket.off("left", onLeft);
+      updateSocket.off("seatLeave", onSeatLeave);
+      updateSocket.off("changedColor", onChangedColor);
       updateSocket.off("spectators", onSpectators);
       updateSocket.off("update", onUpdate);
     };
@@ -384,14 +368,24 @@ const Game = ({ updateSocket }) => {
       {serverData.map(
         (player) =>
           player.seat !== seat &&
-          player.cards && (
+          player.cardsLength > 0 && (
             <OtherHand
               key={player.seat}
-              cards={player.cards}
+              cardsLength={player.cardsLength}
               rotation={[0, (player.seat * (Math.PI * 2)) / maxPlayers, 0]}
             />
           )
       )}
+      {playedCards.map(({ id, rotation }) => {
+        return (
+          <PlayedCard
+            key={id}
+            id={id}
+            rotation={rotation}
+            removePlayed={removePlayed}
+          />
+        );
+      })}
       <ColorChanger
         colorChangerActive={colorChangerActive}
         changeBgColor={changeBgColor}

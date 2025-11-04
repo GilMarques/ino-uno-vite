@@ -7,15 +7,7 @@ import { useSelector } from "react-redux";
 import { Group } from "three";
 import type { RootState } from "../../state/store";
 
-const OpponentHand = ({
-  id,
-  seat,
-  max,
-}: {
-  id: string;
-  seat: number;
-  max: number;
-}) => {
+const OpponentHand = ({ id, seat }: { id: string; seat: number }) => {
   const groupRef = useRef<Group>(null);
 
   const rotations: [number, number, number][] = [

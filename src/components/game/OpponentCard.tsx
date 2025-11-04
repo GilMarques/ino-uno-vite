@@ -14,7 +14,7 @@ const OpponentCard = ({
   groupRef,
   isDragging,
   src,
-  source,
+
   source_origin,
   animate = true,
 }: {

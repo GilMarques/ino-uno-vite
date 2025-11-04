@@ -4,7 +4,8 @@ import { setState } from "../game/gameSlice";
 import type { GameStateUpdate } from "../model";
 import { connected, disconnected, error as socketError } from "./socketSlice";
 let socket: Socket | null = null;
-const url = "http://127.0.0.1:8000";
+// const url = "http://127.0.0.1:8000";
+const url = "https://ino-uno.onrender.com";
 
 export const socketMiddleware: Middleware =
   (storeAPI) => (next) => (action: any) => {

@@ -7,7 +7,6 @@ import OpponentHand from "./OpponentHand";
 import PlayerHand from "./PlayerHand";
 import Table from "./Table";
 
-import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 const rotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
@@ -21,8 +20,6 @@ export const Card_Dimensions = {
 };
 
 const Game = ({}) => {
-  const { camera } = useThree();
-
   const sid = useSelector((state: RootState) => state.game.sid);
   const players = useSelector((state: RootState) => state.game.players);
   const seat = useSelector((state: RootState) => state.game.seat);
@@ -36,8 +33,6 @@ const Game = ({}) => {
 
   useEffect(() => {
     if (!worldRef.current || seat == -1) return;
-
-    console.log(seat, players);
 
     worldRef.current.rotation.z = -rotations[seat % 4];
   }, [seat]);
@@ -56,12 +51,7 @@ const Game = ({}) => {
         />
         {opponents.map((player) => {
           return (
-            <OpponentHand
-              id={player.sid}
-              key={player.sid}
-              seat={player.seat}
-              max={4}
-            />
+            <OpponentHand id={player.sid} key={player.sid} seat={player.seat} />
           );
         })}
       </group>
